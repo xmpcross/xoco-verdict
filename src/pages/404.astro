@@ -1,0 +1,70 @@
+---
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { loadLibrary } from "@/lib/articles";
+import { summarize } from "@/lib/content";
+
+const library = await loadLibrary();
+const suggestions = library.articles.slice(0, 3).map(summarize);
+---
+
+<BaseLayout title="Page not found" description="The page you requested could not be found." noindex>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <div class="container section section-top">
+      <div class="notfound">
+        <p class="txt-label notfound__code">Error 404</p>
+        <h1 class="txt-h1">No verdict at this address.</h1>
+        <p class="txt-l txt-dim">
+          The page may have been renamed when a product was re-tested, or the URL may be mistyped.
+          Search is the fastest way to find something specific.
+        </p>
+        <div class="notfound__actions">
+          <a class="btn btn--lg" href="/reviews/">Browse reviews</a>
+          <a class="btn btn--ghost btn--lg" href="/blog/">Browse guides</a>
+        </div>
+      </div>
+
+      <section class="notfound__suggestions" aria-labelledby="notfound-suggestions">
+        <h2 id="notfound-suggestions" class="txt-label txt-dim">Recently published</h2>
+        <div class="grid-cards">
+          {suggestions.map((summary) => <ArticleCard summary={summary} eager showExcerpt />)}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .notfound {
+    display: grid;
+    justify-items: start;
+    gap: 0.85rem;
+    max-width: 44rem;
+    padding-block: 2.5rem;
+  }
+
+  .notfound__code {
+    color: var(--accent);
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .notfound__suggestions {
+    display: grid;
+    gap: 1.25rem;
+    border-top: 1px solid var(--border);
+    padding-top: 2.5rem;
+    margin-top: 2rem;
+  }
+</style>

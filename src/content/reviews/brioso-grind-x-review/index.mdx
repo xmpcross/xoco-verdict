@@ -1,0 +1,179 @@
+---
+title: "Brioso Grind X review: grind quality you can taste, retention you cannot ignore"
+excerpt: A 64 mm flat-burr grinder at $299 that produces genuinely narrow particle distribution, and holds on to 1.4 g of every dose.
+category: Kitchen
+date: 2026-07-24
+author:
+  name: Sofia Almeida
+  role: Test lead, kitchen
+tags: ["Grinders", "Espresso", "Retention"]
+cover:
+  src: ./cover.webp
+  alt: A matte-black coffee grinder with a clear bean hopper and stainless dosing cup
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Grind X
+  brand: Brioso
+  image:
+    src: ./product.jpg
+    alt: Roasted beans inside a grinder, seen from above
+    creditName: Erick Chévez
+    creditUrl: https://unsplash.com/photos/a-pan-of-food-mJbu7eW9ph8
+  retailers:
+    - name: Brioso Direct
+      url: https://example.com/brioso/grind-x
+    - name: Crema Works
+      url: https://example.com/crema/grind-x
+  specs:
+    - group: Grinding
+      items:
+        - label: Burrs
+          value: 64 mm flat steel
+        - label: Adjustment
+          value: Stepless collar
+        - label: Grind time, 18 g
+          value: 11 seconds
+    - group: Measured output
+      items:
+        - label: Fines below 100 micron
+          value: 8.2% by mass
+        - label: Peak particle size
+          value: 340 micron at espresso setting
+        - label: Retention
+          value: 1.4 g
+    - group: Physical
+      items:
+        - label: Hopper
+          value: 250 g, removable
+        - label: Weight
+          value: 6.1 kg
+        - label: Noise
+          value: 72 dBA at 50 cm
+award: best-value
+verdict: >-
+  The burr set in the Grind X is better than anything else at $299 and the particle
+  distribution proves it — 8.2% fines against a class average of 12.4%. The problem
+  sits in the chute. At 1.4 g of retention, roughly 8% of an espresso dose stays in
+  the machine and comes out in the next one, which matters enormously if you change
+  beans and not at all if you do not. For a household drinking one roast at a time,
+  this is the best grinder at the price. For anyone tasting through coffees, it is
+  a daily irritation.
+bestFor: You drink one roast at a time, make several drinks in a row, and want espresso-grade consistency for under $300.
+skipIf: You change beans often, or you make one shot a day and want it to taste like the beans you just put in.
+testedFor: nine weeks and roughly 400 doses
+scores:
+  - label: Grind consistency
+    value: 9.1
+    weight: 2.5
+    note: 8.2% fines by mass, against a 12.4% class average.
+  - label: Adjustment
+    value: 8.6
+    weight: 1.5
+    note: Stepless, with about 90 degrees of usable espresso range.
+  - label: Retention
+    value: 4.8
+    weight: 2
+    note: 1.4 g held in the chute. Single-dosing means purging every time.
+  - label: Speed and noise
+    value: 8
+    weight: 1
+    note: 11 seconds for 18 g, at 72 dBA.
+  - label: Build
+    value: 8.8
+    weight: 1
+    note: Metal where it matters, and a published parts diagram.
+  - label: Value
+    value: 9
+    weight: 1
+    note: This burr set does not otherwise exist at this money.
+pros:
+  - Particle distribution that matches grinders at twice the price
+  - Stepless collar with genuinely usable resolution in the espresso range
+  - Full parts diagram published, burrs replaceable at home
+  - Consistent dose weight, within 0.3 g across ten pulls
+cons:
+  - 1.4 g of retention makes single-dosing frustrating
+  - No bellows or blind tumbler included to help clear it
+  - The hopper lid rattles at speed
+  - Static is severe with light roasts in dry air
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+The grinder matters more than the machine. This is the least popular true statement
+in home espresso, because grinders are expensive and boring and a machine looks like
+something.
+
+<KeyNumbers
+  items={[
+    { value: "8.2", unit: "%", label: "Fines below 100 micron", note: "Class average: 12.4%" },
+    { value: "1.4", unit: "g", label: "Retention per dose" },
+    { value: "11", unit: "s", label: "To grind 18 g" },
+  ]}
+/>
+
+## Particle distribution
+
+We sieve a 50 g sample through a five-stage stack and weigh each fraction. Fines —
+the material below 100 micron — are what cause channelling and bitterness; a narrow
+distribution with few fines is the entire reason to spend money on a grinder.
+
+<TestBench
+  caption="50 g of medium roast at espresso setting, five-stage sieve stack, three samples averaged. Reference is the mean of four 58-64 mm grinders between $250 and $400."
+  rows={[
+    { label: "Fines below 100 micron", result: "8.2%", reference: "12.4%", better: true },
+    { label: "Peak particle size", result: "340 micron", reference: "355 micron" },
+    { label: "Mass within 100 micron of peak", result: "71%", reference: "58%", better: true },
+    { label: "Dose consistency, 10 pulls", result: "0.3 g", reference: "0.6 g", better: true },
+    { label: "Retention per dose", result: "1.4 g", reference: "0.9 g", better: false },
+  ]}
+/>
+
+Seventy-one per cent of the mass falling within 100 micron of the peak is a very
+good result, and it is audible in the cup: extractions are more even, and the range
+of grind settings that produce a drinkable shot is noticeably wider. On a Piccolo E1
+the pairing is excellent.
+
+## Retention, and who it hurts
+
+One point four grams stays in the chute after every dose. That coffee is not lost —
+it comes out at the start of the next grind — but it means the first 1.4 g of your
+morning espresso is yesterday's coffee.
+
+If you drink one roast, week in and week out, this is invisible. If you buy 250 g
+bags of different coffees and taste through them, it is a constant, small
+contamination, and the only fix is to purge a few grams every time you change.
+
+<Callout tone="method" title="How we measure retention">
+  Grind 20 g through a clean, dry grinder and weigh the output. The difference is retention. Repeat
+  three times with the same beans, then run a fourth dose of a visually distinct roast and weigh
+  what comes out. Every retention figure on this site is measured this way.
+</Callout>
+
+Brioso does not ship a bellows or a blind tumbler, either of which would help. A
+third-party bellows costs about $15 and drops retention to roughly 0.6 g in our
+testing, which is the first thing we would buy alongside it.
+
+<Callout tone="tip" title="If you single-dose">
+  Add a bellows and weigh the output rather than the input. With one fitted, the Grind X becomes a
+  genuinely good single-dosing grinder; without one, plan on purging 2 g every time you change
+  beans.
+</Callout>
+
+## Everything else
+
+Eleven seconds for an 18 g dose at 72 dBA — fast and loud, roughly in line with the
+class. The stepless collar has about 90 degrees of usable range across espresso,
+which is enough resolution to dial in without hunting.
+
+Static is the one build complaint beyond retention: with light roasts in a dry
+kitchen, grounds cling to everything. A drop of water on the beans before grinding
+solves it entirely and is what we did for the last six weeks.
+
+## The verdict
+
+At $299 the burr performance is unmatched, and the retention is the price of it.
+Budget another $15 for a bellows and this becomes very hard to argue with.

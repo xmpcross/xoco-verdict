@@ -1,0 +1,143 @@
+---
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { authorProfile } from "@/config/authors";
+import { loadLibrary, reviewerIndex } from "@/lib/articles";
+import { authorHref, kindOf } from "@/lib/content";
+
+const library = await loadLibrary();
+const reviewers = reviewerIndex(library.articles).map((reviewer) => ({
+  ...reviewer,
+  profile: authorProfile(reviewer.name),
+  reviewCount: reviewer.articles.filter((article) => kindOf(article) === "review").length,
+}));
+---
+
+<BaseLayout
+  title="The reviewers"
+  description="Who runs each bench, what they are trusted on, and everything they have published."
+>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title="The reviewers"
+        description="Every score on this site has a name attached to it. These are the people who ran the tests, and the beats they are trusted on."
+        meta={`${reviewers.length} reviewers · ${library.articles.length} articles`}
+      />
+    </div>
+
+    <section class="container section section-top" aria-label="All reviewers">
+      <ul class="reviewers">
+        {
+          reviewers.map((reviewer) => (
+            <li class="reviewer">
+              <a class="reviewer__link" href={authorHref(reviewer.name)}>
+                <Avatar name={reviewer.name} size="xl" />
+                <span class="reviewer__copy">
+                  <span class="txt-h4 reviewer__name">{reviewer.name}</span>
+                  <span class="txt-label txt-dim">{reviewer.role}</span>
+                  {reviewer.profile?.bio && (
+                    <span class="txt-s txt-dim reviewer__bio">{reviewer.profile.bio}</span>
+                  )}
+                  <span class="txt-label reviewer__counts">
+                    {reviewer.articles.length} articles
+                    <span aria-hidden="true"> · </span>
+                    {reviewer.reviewCount} reviews
+                  </span>
+                </span>
+              </a>
+              {
+                reviewer.profile?.beats && reviewer.profile.beats.length > 0 && (
+                  <p class="chip-row reviewer__beats">
+                    {reviewer.profile.beats.map((beat) => (
+                      <span class="chip">{beat}</span>
+                    ))}
+                  </p>
+                )
+              }
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <NewsletterBand id="reviewers-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .reviewers {
+      display: grid;
+      gap: 1.25rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    @media (min-width: 48rem) {
+      .reviewers {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .reviewer {
+      display: grid;
+      align-content: start;
+      gap: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-block);
+      background: var(--card);
+      padding: 1.25rem;
+      transition: border-color 0.22s ease;
+    }
+
+    /* The accent on the ring rather than a shadow: nothing else in the theme
+       lifts a card off the page on hover. */
+    .reviewer:hover {
+      border-color: var(--accent);
+    }
+
+    .reviewer__link {
+      display: grid;
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .reviewer__copy {
+      display: grid;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    .reviewer__name {
+      transition: color 0.2s ease;
+    }
+
+    .reviewer__link:hover .reviewer__name {
+      color: var(--accent);
+    }
+
+    .reviewer__bio {
+      margin-top: 0.15rem;
+    }
+
+    .reviewer__counts {
+      margin-top: 0.35rem;
+      color: var(--accent);
+    }
+
+    .reviewer__beats {
+      margin: 0;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.85rem;
+    }
+  </style>
+</BaseLayout>

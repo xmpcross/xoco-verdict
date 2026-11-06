@@ -1,0 +1,166 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import { footerNavigation, siteConfig } from "@/config/site";
+import { socialIconFor } from "@/lib/socials";
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer cat-band wash-band wash-band--deep" data-site-footer>
+  <div class="container site-footer__inner">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <a href="/" class="wordmark site-footer__wordmark" aria-label={`${siteConfig.name} home`}>
+          <span class="wordmark__text">{siteConfig.name}</span>
+        </a>
+        <p class="txt-s txt-dim">{siteConfig.bio}</p>
+        <ul class="site-footer__socials hover-fade-group">
+          {
+            siteConfig.socials.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="site-footer__social"
+                  aria-label={item.label}
+                  rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                >
+                  <Icon name={socialIconFor(item.label)} size={20} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <nav class="site-footer__nav" aria-label="Footer">
+        {
+          footerNavigation.map((group) => (
+            <div>
+              <p class="txt-eyebrow site-footer__group-title">{group.title}</p>
+              <ul class="hover-fade-group">
+                {group.links.map((link) => (
+                  <li>
+                    <a class="txt-s site-footer__link" href={link.href}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </nav>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="txt-cap txt-dim">
+        &copy; {currentYear} {siteConfig.name}. Built with Astro.
+      </p>
+      <p class="txt-cap txt-dim">{siteConfig.tagline}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* No rule across the top: the wash is the edge — see `.wash-band` in
+     global.css, which also paints the front page's lead band. */
+  .site-footer {
+    margin-top: var(--section-gap);
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: 2rem;
+    padding-block: 2.75rem 2rem;
+  }
+
+  .site-footer__top {
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .site-footer__brand {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    max-width: 26rem;
+  }
+
+  .site-footer__wordmark {
+    font-size: 1.5rem;
+  }
+
+  .site-footer__socials,
+  .site-footer__nav ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__socials {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .site-footer__social {
+    display: inline-grid;
+    place-items: center;
+    color: var(--muted-foreground);
+    transition: color 0.22s ease;
+  }
+
+  .site-footer__social:hover {
+    color: var(--accent);
+  }
+
+  /* Three columns at every width — the groups are short enough to sit side by
+     side on a phone, and wrapping one under the others reads as a fourth,
+     unnamed group. */
+  .site-footer__nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .site-footer__nav ul {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .site-footer__group-title {
+    margin-bottom: 0.8rem;
+    color: var(--foreground);
+  }
+
+  .site-footer__link {
+    color: var(--muted-foreground);
+    transition: color 0.22s ease;
+  }
+
+  .site-footer__link:hover {
+    color: var(--accent);
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+  }
+
+  @media (min-width: 64rem) {
+    .site-footer__top {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 34rem);
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .site-footer__nav {
+      gap: 2.5rem;
+    }
+  }
+</style>

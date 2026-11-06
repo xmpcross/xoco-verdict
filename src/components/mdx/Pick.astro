@@ -1,0 +1,296 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import Icon from "@/components/ui/Icon.astro";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import { siteConfig } from "@/config/site";
+import { awardMeta, type AwardKey } from "@/config/scoring";
+
+/**
+ * One recommendation inside a plain post — the block a "best X for Y" roundup
+ * is built from. Everything is a prop, so a post carries as many as it needs
+ * without any of it entering the content schema:
+ *
+ *   import Pick from "@/components/mdx/Pick.astro";
+ *   import shot from "./pick-1.jpg";
+ *
+ *   <Pick
+ *     award="best-overall"
+ *     brand="Northbeam Audio"
+ *     name="Atlas II"
+ *     image={shot}
+ *     imageAlt="Over-ear headphones on a metal surface"
+ *     score={8.8}
+ *     href="/review/northbeam-atlas-2-review/"
+ *     buyUrl="https://example.com/northbeam/atlas-2"
+ *     buyLabel="Northbeam Direct"
+ *   >
+ *     The best measured isolation in the group, and a tuning that does not tire.
+ *   </Pick>
+ *
+ * The card carries the recommendation and nothing else: what it is, one or two
+ * sentences on why, and the way to buy it. Reasons, measurements, and caveats
+ * go in the body copy after the block, where they have room to be argued rather
+ * than listed.
+ */
+interface Props {
+  name: string;
+  brand?: string;
+  /** Position in the roundup. Printed on the tab; omit for a single pick. */
+  rank?: number;
+  award?: AwardKey;
+  /** Overrides the award's wording on the tab: "The one to buy". */
+  headline?: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /**
+   * How the shot fills the frame. `cover` suits a photograph; use `contain`
+   * for a retailer cut-out on white, which would otherwise be trimmed.
+   */
+  imageFit?: "cover" | "contain";
+  score?: number;
+  /** Link to your own review of it. */
+  href?: string;
+  /** Outbound retailer link. Carries the site's affiliate `rel` automatically. */
+  buyUrl?: string;
+  /** Retailer name, printed on the button. */
+  buyLabel?: string;
+  class?: string;
+}
+
+const {
+  name,
+  brand,
+  rank,
+  award,
+  headline,
+  image,
+  imageAlt = "",
+  imageFit = "cover",
+  score,
+  href,
+  buyUrl,
+  buyLabel,
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const flag = headline ?? (award ? awardMeta(award).label : undefined);
+---
+
+<article class:list={["pick", flag && "pick--flagged", className]} {...rest}>
+  {
+    flag && (
+      <p class="pick__flag">
+        {rank !== undefined && <span class="pick__rank">{rank}</span>}
+        {flag}
+      </p>
+    )
+  }
+
+  <div class="pick__body">
+    {
+      image && (
+        <div class:list={["pick__media", `pick__media--${imageFit}`]}>
+          <Image
+            src={image}
+            alt={imageAlt}
+            widths={[320, 480, 640]}
+            sizes="(min-width: 46rem) 15rem, calc(100vw - 5rem)"
+            loading="lazy"
+            decoding="async"
+          />
+          {score !== undefined && <ScoreBadge score={score} size="xs" class="pick__score" />}
+        </div>
+      )
+    }
+
+    <div class="pick__text">
+      {brand && <span class="pick__brand">{brand}</span>}
+
+      <h3 class="pick__title">{href ? <a href={href}>{name}</a> : name}</h3>
+
+      <div class="pick__copy">
+        <slot />
+      </div>
+
+      {
+        buyUrl && (
+          <p class="pick__foot">
+            <a class="btn btn--buy" href={buyUrl} rel={siteConfig.affiliate.rel} target="_blank">
+              {buyLabel
+                ? `${siteConfig.affiliate.ctaLabel} at ${buyLabel}`
+                : siteConfig.affiliate.ctaLabel}
+              <Icon name="external" size={13} />
+              <span class="sr-only">{` for the ${name} (opens in a new tab)`}</span>
+            </a>
+          </p>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  /*
+   * A card, and the one place in the theme that gets a real one: in a column of
+   * prose a roundup pick genuinely is an object, and the reader needs to see at
+   * a glance where a recommendation starts and the argument resumes.
+   */
+  .pick {
+    position: relative;
+    margin: 3.5rem 0 2.5rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-block);
+    background: var(--card);
+    padding: 1.5rem;
+    font-size: var(--fs-m);
+    line-height: var(--lh-body);
+  }
+
+  /* Square under the tab, so the flag and the card read as one shape rather
+     than as a label parked on a rounded corner. A pick with no flag keeps the
+     corner, because there is nothing sitting on it. */
+  .pick--flagged {
+    border-start-start-radius: 0;
+  }
+
+  /* The tab sits on the card's top edge rather than inside it, so the label
+     never competes with the product name for the first line. */
+  .pick__flag {
+    position: absolute;
+    bottom: 100%;
+    left: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    border-start-start-radius: var(--radius-block);
+    border-start-end-radius: var(--radius-block);
+    background: var(--accent);
+    padding: 0.4rem 0.85rem;
+    color: var(--accent-foreground);
+    font-size: var(--fs-cap);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .pick__rank {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    border-radius: var(--radius-control);
+    background: rgb(255 255 255 / 0.24);
+    padding-inline: 0.25rem;
+    font-size: 0.6875rem;
+  }
+
+  .pick__body {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 46rem) {
+    .pick {
+      padding: 1.75rem;
+    }
+
+    .pick__body {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 1.75rem;
+      align-items: center;
+    }
+  }
+
+  /*
+   * Product shots arrive on every kind of background. A photograph fills the
+   * frame; a retailer cut-out is set inside it instead, because cropping a tall
+   * product trims the thing being recommended. `imageFit` picks between them.
+   */
+  .pick__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-block);
+    background: var(--muted);
+  }
+
+  .pick__media :global(img) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pick__media--cover :global(img) {
+    object-fit: cover;
+  }
+
+  .pick__media--contain :global(img) {
+    object-fit: contain;
+    padding: 1rem;
+  }
+
+  /* Flush into the bottom-right corner of the frame, where a card's score also
+     sits: a square badge inset from the edge reads as a sticker dropped on the
+     picture. */
+  .pick__score {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .pick__text {
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  .pick__brand {
+    color: var(--muted-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--fs-s);
+    font-weight: 500;
+  }
+
+  .pick__brand + .pick__title {
+    margin-top: -0.5rem;
+  }
+
+  .pick__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    font-weight: var(--weight-title);
+    letter-spacing: var(--ls-title);
+    line-height: var(--lh-title);
+  }
+
+  .pick__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .pick__title a:hover {
+    color: var(--accent);
+  }
+
+  .pick__copy {
+    max-width: 46ch;
+  }
+
+  .pick__copy :global(p) {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .pick__copy :global(p + p) {
+    margin-top: 0.6rem;
+  }
+
+  .pick__foot {
+    margin: 0.15rem 0 0;
+  }
+</style>

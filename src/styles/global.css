@@ -1,0 +1,1695 @@
+@import "tailwindcss";
+@source "../**/*.{astro,ts,md,mdx}";
+
+/* ==========================================================================
+   Verdict — the design system
+   --------------------------------------------------------------------------
+   Three ideas hold the whole interface together.
+
+   1. Editorial scale. Headlines are set big and heavy in a geometric sans,
+      pictures are portrait rather than letterbox, and the small type that
+      labels them is capitals on a wide track. The page is meant to read like a
+      magazine front, not like a dashboard.
+
+   2. Three families of colour, and no fourth. Each category owns a pale
+      three-stop gradient (see `config/categories.ts`) that paints the band
+      behind an article headline and the face of its category card; the score
+      ramp owns green through crimson, and nothing else may use those hues; the
+      chrome is white, near-black type, warm greys, and one cobalt accent.
+      Labels, counts, awards, and eyebrows are set in the greys — a page that
+      tints its small type as well as its bands ends up a colour chart.
+
+   3. Nothing is boxed unless the box is doing work. Corners are square,
+      sections are separated by space and a hairline — not by borders inside
+      borders. Tables have rules between rows and nothing else. Panels are
+      reserved for the two blocks that genuinely are objects: the verdict, and
+      a buy box.
+
+   Two typefaces: Jost for headlines, labels, controls, and scores; Inter for
+   body copy and metadata. There is no monospaced UI.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Jost";
+  src: url("/fonts/jost/Jost-Variable-latin.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Jost";
+  src: url("/fonts/jost/Jost-Variable-latin-ext.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter/Inter-Variable-latin.woff2") format("woff2-variations");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter/Inter-Variable-latin-ext.woff2") format("woff2-variations");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --radius-control: var(--radius-control);
+  --radius-block: var(--radius-block);
+}
+
+:root {
+  /* Neutral ramp — warm, so the page reads as paper rather than as screen. */
+  --n-0: #ffffff;
+  --n-25: #fbfbfa;
+  --n-50: #f4f4f1;
+  --n-100: #ebebe7;
+  --n-200: #dedad8;
+  --n-300: #c6c6be;
+  --n-400: #9c9c94;
+  --n-500: #74746c;
+  --n-600: #575751;
+  --n-700: #3e3e39;
+  --n-800: #2a2a26;
+  --n-900: #181815;
+  --n-950: #0e0e0c;
+
+  /* Accent — cobalt. Links, focus, active nav, and the buy button. Blue sits
+     outside the score ramp on purpose: it never means "good"; that is the
+     ramp's job. */
+  --cobalt-50: #eaeeff;
+  --cobalt-500: #1f3ad6;
+  --cobalt-600: #142aa8;
+
+  /* Score ramp. Five stops, mapped to the bands in `config/scoring.ts`. */
+  --score-exceptional: #0a8f5f;
+  --score-strong: #5f9612;
+  --score-fair: #b07806;
+  --score-weak: #cd5f10;
+  --score-poor: #cf2149;
+
+  --pro: #0a8f5f;
+  --con: #cf2149;
+  --award: #a06a08;
+
+  color-scheme: light;
+  /* White page. The neutral ramp stays warm, so hairlines, muted text, and the
+     footer read as paper against it rather than as a screenshot of a screen. */
+  --background: var(--n-0);
+  --card: var(--n-0);
+  --foreground: var(--n-950);
+  --muted: var(--n-100);
+  --muted-foreground: var(--n-600);
+  --primary: var(--n-950);
+  --primary-foreground: var(--n-0);
+  --accent: var(--cobalt-500);
+  --accent-strong: var(--cobalt-600);
+  --accent-wash: var(--cobalt-50);
+  --accent-foreground: #ffffff;
+  --border: var(--n-200);
+  --border-soft: var(--n-100);
+  --border-strong: var(--n-300);
+  --ink: var(--n-950);
+  --ink-foreground: var(--n-25);
+
+  --shadow-lift: 0 14px 34px -18px rgb(14 14 12 / 0.28);
+  --shadow-pop: 0 26px 64px -24px rgb(14 14 12 / 0.35);
+
+  /* A neutral fallback for anything that needs the category gradient before a
+     category is known. Every hero and card overrides these inline. */
+  --cat-from: var(--n-100);
+  --cat-via: var(--n-100);
+  --cat-to: var(--n-50);
+
+  /* The pale wash: a whisper of the accent in white. It stripes a table row and
+     it is the middle stop of `.wash-band`, which paints the footer and the
+     front page's lead. Cool rather than warm — see the note on `.wash-band`. */
+  --wash: #f7f8fe;
+
+  /* Type ----------------------------------------------------------------- */
+  --font-display:
+    "Jost", "Century Gothic", "Segoe UI", ui-sans-serif, system-ui, -apple-system, Arial, sans-serif;
+  --font-sans:
+    "Inter", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Arial,
+    sans-serif;
+  /* Code blocks only — no monospaced webfont is shipped. */
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, Menlo, monospace;
+
+  --fs-h1: 2.5rem;
+  --fs-h2: 1.875rem;
+  --fs-h3: 1.375rem;
+  --fs-h4: 1.125rem;
+  --fs-h5: 1rem;
+  --fs-h6: 0.9375rem;
+  --fs-l: 1.0625rem;
+  --fs-m: 0.9375rem;
+  --fs-s: 0.875rem;
+  --fs-xs: 0.8125rem;
+  --fs-cap: 0.75rem;
+  /* The capitals used for kickers, section eyebrows, and controls. */
+  --fs-eyebrow: 0.6875rem;
+
+  --lh-title: 1.04;
+  --lh-body: 1.6;
+  /* Jost is geometric and wide-set: headlines want a firm negative track,
+     capitals want a generous positive one. */
+  --ls-title: -0.03em;
+  --ls-eyebrow: 0.16em;
+  --ls-control: 0.08em;
+
+  --weight-title: 700;
+  --weight-body: 400;
+  --weight-strong: 600;
+
+  /* Shape ---------------------------------------------------------------- */
+  /* Square. The only curves in the theme are avatars and the meter. */
+  --radius-control: 0;
+  --radius-block: 0;
+  --radius-avatar: 50%;
+  --avatar-ring: var(--background);
+
+  /* Layout --------------------------------------------------------------- */
+  --container: 82.5rem;
+  --gutter: 1.25rem;
+  --reading: 42rem;
+  /* Between the reading column and the full container: for blocks that are
+     part of the argument but need more room than prose, like a comparison. */
+  --measure: 56rem;
+  --sidebar: 17rem;
+  --section-gap: 3.5rem;
+  --header-height: 3.75rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --gutter: 1.75rem;
+    --section-gap: 4.5rem;
+    --fs-h1: 3.25rem;
+    --fs-h2: 2.25rem;
+    --fs-h3: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 2.25rem;
+    --section-gap: 5.5rem;
+    --fs-h1: 4.25rem;
+    --fs-h2: 2.75rem;
+    --fs-h3: 1.625rem;
+    --fs-h4: 1.1875rem;
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 1rem);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-width: 320px;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-m);
+  font-weight: var(--weight-body);
+  line-height: var(--lh-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+img,
+svg,
+video,
+picture {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 400;
+  transform: translateY(-200%);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.75rem 1.1rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--weight-strong);
+  border-radius: var(--radius-control);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Type scale
+   ========================================================================== */
+
+.txt-h1,
+.txt-h2,
+.txt-h3,
+.txt-h4,
+.txt-h5,
+.txt-h6 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--ls-title);
+  text-wrap: balance;
+  margin: 0;
+}
+
+.txt-h1 {
+  font-size: var(--fs-h1);
+}
+.txt-h2 {
+  font-size: var(--fs-h2);
+}
+.txt-h3 {
+  font-size: var(--fs-h3);
+}
+.txt-h4 {
+  font-size: var(--fs-h4);
+  letter-spacing: -0.024em;
+  line-height: 1.16;
+}
+.txt-h5 {
+  font-size: var(--fs-h5);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.txt-h6 {
+  font-size: var(--fs-h6);
+  letter-spacing: -0.016em;
+  line-height: 1.26;
+}
+
+.txt-l,
+.txt-m,
+.txt-s,
+.txt-xs,
+.txt-cap {
+  line-height: var(--lh-body);
+  text-wrap: pretty;
+  margin: 0;
+}
+
+.txt-l {
+  font-size: var(--fs-l);
+}
+.txt-m {
+  font-size: var(--fs-m);
+}
+.txt-s {
+  font-size: var(--fs-s);
+}
+.txt-xs {
+  font-size: var(--fs-xs);
+}
+.txt-cap {
+  font-size: var(--fs-cap);
+  line-height: 1.45;
+}
+
+.txt-sub,
+.txt-sub-xs {
+  margin: 0;
+  font-size: var(--fs-s);
+  font-weight: var(--weight-strong);
+  line-height: 1.35;
+}
+
+.txt-sub-xs {
+  font-size: var(--fs-xs);
+}
+
+.txt-dim {
+  color: var(--muted-foreground);
+}
+
+/* Small supporting text: metadata, table keys, credits. Same face as the body,
+   one step down. Never capitals, never a second typeface. */
+.txt-label {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/*
+ * The eyebrow: capitals on a wide track, in the display face. It labels the
+ * thing under it — "featured review", a section name, a rank — and it is the
+ * one place the theme sets type in capitals. Wide tracking is not decoration
+ * here: at this size, geometric capitals set solid are unreadable.
+ */
+.txt-eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+}
+
+/*
+ * The category name, set as an eyebrow. Grey, not the category's own hue: a
+ * grid of mixed cards carrying six saturated inks reads as a colour chart, and
+ * the label is the smallest type on the card. The category's colour belongs to
+ * the gradient bands, where it has room to mean something.
+ */
+/* The line height matters as much as the size: without it the label inherited
+   the body's 1.6 and sat in a line box 3px taller than the eyebrow beside it,
+   which is enough for the two to snap to different baselines. */
+.txt-cat {
+  color: var(--n-700);
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+}
+
+a.txt-cat:hover {
+  color: var(--foreground);
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container-reading {
+  width: 100%;
+  max-width: calc(var(--reading) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-bottom: var(--section-gap);
+}
+
+.section-top {
+  padding-top: var(--section-gap);
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.with-sidebar {
+  display: grid;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .with-sidebar {
+    grid-template-columns: minmax(0, 1fr) var(--sidebar);
+    gap: 3.5rem;
+  }
+}
+
+/* Card grids. Denser than a typical blog: three across by default, four on a
+   wide screen, because a review archive is a catalogue and readers scan it. */
+.grid-cards {
+  display: grid;
+  gap: 3rem 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 34rem) {
+  .grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.grid-cards--4 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 34rem) {
+  .grid-cards--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .grid-cards--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.grid-cards--2 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 48rem) {
+  .grid-cards--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Section headings
+   ========================================================================== */
+
+/*
+ * A section is opened by its headline and the space above it — no rule. The
+ * "see all" link set in capitals at the far end of the same baseline is what
+ * makes six stacked grids read as a masthead rather than as a feed.
+ */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .section-head {
+    margin-bottom: 2.5rem;
+  }
+}
+
+.section-link {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.section-link:hover {
+  color: var(--accent);
+}
+
+.section-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.section-link__arrow {
+  display: grid;
+  place-items: center;
+  transition: transform 0.25s var(--ease-out);
+}
+
+.section-link:hover .section-link__arrow {
+  transform: translateX(0.2rem);
+}
+
+/* ==========================================================================
+   Buttons & controls
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.875rem;
+  padding-inline: 1.5rem;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-control);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--ls-control);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s var(--ease-out);
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--primary) 84%, var(--background));
+  border-color: color-mix(in srgb, var(--primary) 84%, var(--background));
+}
+
+.btn:not([disabled]):not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+
+.btn:not([disabled]):not([aria-disabled="true"]):active {
+  transform: translateY(0);
+}
+
+.btn--lg {
+  height: 3.5rem;
+  padding-inline: 2.5rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+}
+
+.btn--sm {
+  height: 2.25rem;
+  padding-inline: 1.1rem;
+  font-size: 0.625rem;
+}
+
+/* The buy button — the only place the accent is used as a fill, so a retailer
+   link is never mistaken for ordinary navigation. */
+.btn--buy {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.btn--buy:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+}
+
+.btn--ghost {
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.btn--ghost:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.btn[disabled],
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.icon-btn {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s var(--ease-out);
+}
+
+.icon-btn:hover {
+  background: var(--muted);
+  color: var(--accent);
+}
+
+.icon-btn:not([disabled]):active {
+  transform: scale(0.92);
+}
+
+.icon-btn[disabled] {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.icon-btn[disabled]:hover {
+  background: transparent;
+  color: inherit;
+}
+
+/* Inline email capture. */
+.field {
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.field:focus-within {
+  border-color: var(--accent);
+}
+
+.field__input {
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  outline: none;
+  padding-inline: 0.9rem;
+  font-size: var(--fs-s);
+}
+
+.field__input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.field__input:disabled {
+  cursor: not-allowed;
+}
+
+.field .btn {
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.field--onDark {
+  border-color: transparent;
+  background: var(--n-0);
+}
+
+.field--onDark .field__input {
+  color: var(--n-950);
+}
+
+.field--onDark .field__input::placeholder {
+  color: var(--n-500);
+}
+
+.field--onDark .btn {
+  border-color: var(--cobalt-500);
+  background: var(--cobalt-500);
+  color: #ffffff;
+}
+
+.input {
+  width: 100%;
+  min-height: 2.875rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 0.65rem 0.9rem;
+  font-size: var(--fs-s);
+}
+
+.input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.form-note {
+  color: var(--muted-foreground);
+  font-size: var(--fs-cap);
+  line-height: 1.5;
+}
+
+.form-note a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* ==========================================================================
+   Chips
+   ========================================================================== */
+
+.chip {
+  display: inline-flex;
+  height: 1.875rem;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-control);
+  background: var(--muted);
+  padding-inline: 0.7rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--ls-control);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s var(--ease-out);
+}
+
+a.chip:hover {
+  background: var(--accent-wash);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* An award is printed in ink rather than in a colour of its own: a card can
+   already be carrying a score in the ramp's green and a category band behind
+   it, and a third hue on the same object is one too many. */
+.chip--award {
+  background: var(--foreground);
+  color: var(--background);
+  font-weight: 700;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ==========================================================================
+   Category colour
+   ========================================================================== */
+
+/*
+ * The gradient band. Used full-bleed behind an article headline and, at a
+ * smaller scale, as the strip on a category card.
+ */
+.cat-band {
+  position: relative;
+  background: linear-gradient(115deg, var(--cat-from) 0%, var(--cat-via) 52%, var(--cat-to) 100%);
+}
+
+/*
+ * The same band with no category in it: the accent laid into white at 1.5%,
+ * 3.5%, and 6%. Used where a surface has to lift off the page without carrying
+ * a category — the front page's lead, and the footer.
+ *
+ * Cool, not warm. The neutral ramp is warm on purpose — paper, not screen — and
+ * at this lightness warm reads as tan. Written out rather than mixed at runtime
+ * because a `color-mix()` of a custom property compiles to a fallback of the
+ * raw accent for browsers without it, which paints this band full cobalt. If
+ * you re-brand the accent, re-mix these three; for a hueless band, use #fcfcfc,
+ * #f8f8f8, #f2f2f3.
+ */
+.wash-band {
+  --cat-from: #fcfcfe;
+  --cat-via: var(--wash);
+  --cat-to: #f2f3fc;
+}
+
+/*
+ * The footer takes the same band a few steps deeper. It follows the newsletter
+ * block, which sits on plain white, and at wash strength the footer had no
+ * edge against it.
+ */
+.wash-band--deep {
+  --cat-from: #eff1fc;
+  --cat-via: #e6e9fa;
+  --cat-to: #dde1f9;
+}
+
+/* ==========================================================================
+   Scores
+   ========================================================================== */
+
+.score {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-block);
+  background: var(--tone, var(--foreground));
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.score--xs {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8125rem;
+}
+
+.score--sm {
+  width: 2.625rem;
+  height: 2.625rem;
+  font-size: 1.0625rem;
+}
+
+.score--md {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.5rem;
+}
+
+.score--lg {
+  width: 4.75rem;
+  height: 4.75rem;
+  font-size: 2rem;
+}
+
+.score--xl {
+  width: 6.25rem;
+  height: 6.25rem;
+  font-size: 3rem;
+}
+
+/* Outline variant, for lists where a wall of filled chips would shout. */
+.score--quiet {
+  background: transparent;
+  color: var(--tone, var(--foreground));
+  box-shadow: inset 0 0 0 1.5px var(--tone, var(--foreground));
+}
+
+/* The band name printed beside a badge. */
+.score-band {
+  color: var(--tone, var(--foreground));
+}
+
+.meter {
+  position: relative;
+  height: 0.3125rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.meter__fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--fraction, 0) * 100%);
+  border-radius: 999px;
+  background: var(--tone, var(--accent));
+}
+
+/* ==========================================================================
+   Surfaces
+   --------------------------------------------------------------------------
+   Used sparingly, and only where the content genuinely is an object: the
+   verdict block and a buy box. Everything else is separated by space.
+   ========================================================================== */
+
+.panel {
+  /* One inset for the whole panel. Rows and lists inside a panel set their own
+     vertical rhythm but read this for their gutters, so a label, a row, and a
+     button all start on the same line. */
+  --panel-pad: 1.35rem;
+  border-radius: var(--radius-block);
+  background: var(--card);
+  /* The page is white, so a panel is drawn by a hairline rather than by a fill.
+     It is the one ring in the theme, which is what keeps a verdict and a buy
+     box reading as objects. */
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+/* Kept for the case where a panel sits on a tinted band and the ring has to be
+   asked for explicitly. */
+.panel--outline {
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+/* A label over a panel's contents. It carries no bottom padding — the block
+   under it owns that gap. */
+.panel__head {
+  padding: var(--panel-pad) var(--panel-pad) 0;
+}
+
+.panel__body {
+  padding: var(--panel-pad);
+}
+
+@media (min-width: 48rem) {
+  .panel {
+    --panel-pad: 1.65rem;
+  }
+}
+
+.ink-block {
+  border-radius: var(--radius-block);
+  background: var(--ink);
+  color: var(--ink-foreground);
+  overflow: hidden;
+}
+
+.ink-block .txt-dim {
+  color: rgb(255 255 255 / 0.66);
+}
+
+/* ==========================================================================
+   Media
+   ========================================================================== */
+
+.media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-block);
+  background: var(--muted);
+}
+
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.5s var(--ease-out);
+}
+
+.media--square {
+  aspect-ratio: 1;
+}
+
+.media--wide {
+  aspect-ratio: 16 / 10;
+}
+
+.media--photo {
+  aspect-ratio: 3 / 2;
+}
+
+.media--product {
+  aspect-ratio: 4 / 3;
+}
+
+/*
+ * The two portrait crops the card grids run on. A product shot given height
+ * carries a page the way a letterbox crop never does — and a column of tall
+ * frames is what separates a catalogue front from a blog feed.
+ *
+ * Both crop from the centre of whatever the photographer shot. Covers in this
+ * theme are landscape, so a 4:5 frame keeps roughly the middle half of the
+ * width: shoot or pick covers with the product near the centre.
+ */
+.media--tall {
+  aspect-ratio: 4 / 5;
+}
+
+.media--portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.zoom-host:hover .media img,
+.zoom-host:focus-within .media img {
+  scale: 1.05;
+}
+
+/* ==========================================================================
+   Avatars & bylines
+   ========================================================================== */
+
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-avatar);
+  background-color: var(--n-700);
+  background-position: center;
+  background-size: cover;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.avatar--sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.5625rem;
+}
+
+.avatar--md {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: var(--fs-xs);
+}
+
+.avatar--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: var(--fs-h5);
+}
+
+.avatar--xl {
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: var(--fs-h3);
+}
+
+.avatar--onDark {
+  background-color: rgb(255 255 255 / 0.15);
+}
+
+.avatar-stack {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.avatar-stack--multi .avatar {
+  box-shadow: 0 0 0 2px var(--avatar-ring);
+}
+
+.avatar-stack--multi .avatar + .avatar {
+  margin-left: -0.5rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.9rem;
+  color: var(--muted-foreground);
+  font-size: var(--fs-xs);
+}
+
+.meta__byline {
+  --byline-gap: 0.3rem;
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem var(--byline-gap);
+}
+
+.meta__byline .avatar-stack {
+  margin-right: 0.2rem;
+}
+
+.meta__author {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.meta__author:hover {
+  color: var(--accent);
+}
+
+.meta__conjunction--tight {
+  margin-left: calc(var(--byline-gap) * -1);
+}
+
+.meta__fact {
+  position: relative;
+}
+
+.meta__fact::before {
+  position: absolute;
+  left: -0.5rem;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  content: "";
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.meta__fact:first-child::before {
+  content: none;
+}
+
+.meta--onDark {
+  color: rgb(255 255 255 / 0.7);
+  --avatar-ring: rgb(255 255 255 / 0.25);
+}
+
+.meta--onDark .meta__author {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Data tables
+   --------------------------------------------------------------------------
+   One skin for specs, comparisons, and rankings: a quiet header row, hairlines
+   between rows, and nothing else. No outer border, no zebra stripes, no hover
+   fills — the numbers are the content.
+   ========================================================================== */
+
+.table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-s);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.85rem 1rem 0.85rem 0;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  padding-right: 0;
+}
+
+.data-table thead th {
+  border-bottom: 1px solid var(--foreground);
+  padding-block: 0.6rem;
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.data-table tbody tr:last-child th,
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The key column of a spec or comparison table. */
+.data-table th[scope="row"] {
+  color: var(--muted-foreground);
+  font-size: var(--fs-s);
+  font-weight: 400;
+}
+
+.data-table .is-winner {
+  color: var(--foreground);
+  font-weight: var(--weight-strong);
+}
+
+/* ==========================================================================
+   Pros and cons
+   --------------------------------------------------------------------------
+   Two columns wearing the data table's skin: a label in capitals over a dark
+   rule, then hairlines between rows. Findings are measurements too, and this
+   way the block matches the specification and comparison tables it sits
+   between rather than restating the verdict's two coloured paragraphs.
+
+   The only ornament is the mark: a pale disc in the column's colour with the
+   tick or the cross inside it.
+   ========================================================================== */
+
+.judgement {
+  display: grid;
+  gap: 2.25rem;
+}
+
+@media (min-width: 44rem) {
+  .judgement {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
+  }
+}
+
+.judgement__col--pro {
+  --tone: var(--pro);
+}
+
+.judgement__col--con {
+  --tone: var(--con);
+}
+
+/* The table's header row: same rule, same weight, same capitals. */
+.judgement__head {
+  border-bottom: 1px solid var(--foreground);
+  padding-bottom: 0.6rem;
+}
+
+.judgement__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.judgement__item {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  border-bottom: 1px solid var(--border);
+  padding-block: 0.85rem;
+  font-size: var(--fs-s);
+  line-height: 1.55;
+}
+
+/* Last row loses its rule, as in the data table: the block ends on content. */
+.judgement__item:last-child {
+  border-bottom: 0;
+}
+
+.judgement__mark {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  margin-top: 0.05rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 15%, transparent);
+  color: var(--tone);
+}
+
+/* ==========================================================================
+   Prose
+   --------------------------------------------------------------------------
+   Element rules are written as `:where(.prose) el`, which is specificity
+   (0,0,1). Any component dropped into an article body then styles itself with
+   a plain class and wins, instead of inheriting link colours and list markers
+   from the reading column.
+   ========================================================================== */
+
+.prose {
+  font-size: var(--fs-l);
+  line-height: 1.72;
+}
+
+:where(.prose) > * + * {
+  margin-top: 1.35rem;
+}
+
+:where(.prose) p,
+:where(.prose) ul,
+:where(.prose) ol {
+  color: color-mix(in srgb, var(--foreground) 90%, transparent);
+  text-wrap: pretty;
+}
+
+:where(.prose) ul {
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+:where(.prose) ol {
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+
+:where(.prose) li + li {
+  margin-top: 0.4rem;
+}
+
+:where(.prose) li::marker {
+  color: var(--border-strong);
+}
+
+:where(.prose) h2,
+:where(.prose) h3,
+:where(.prose) h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-title);
+  letter-spacing: var(--ls-title);
+  line-height: 1.2;
+  scroll-margin-top: 6rem;
+}
+
+/* The body has its own heading sizes. The display scale is tuned for a
+   full-width front page; dropped into a 42rem reading column it shouts. */
+:where(.prose) h2 {
+  margin-top: 3.25rem;
+  margin-bottom: 0.85rem;
+  font-size: 1.75rem;
+}
+
+:where(.prose) h3 {
+  margin-top: 2.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.3125rem;
+}
+
+:where(.prose) h4 {
+  margin-top: 1.75rem;
+  font-size: 1.0625rem;
+}
+
+:where(.prose) a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+  transition: color 0.2s ease;
+}
+
+/* `:where(:hover)` keeps this at (0,0,1), the same as the rule above it. A bare
+   `:hover` would score (0,1,1) and outrank the plain component classes this
+   section promises to lose to — which is how a buy button dropped into an
+   article body ended up painting its label the same violet as its fill. */
+:where(.prose) a:where(:hover) {
+  color: var(--accent-strong);
+}
+
+:where(.prose) strong {
+  font-weight: var(--weight-strong);
+}
+
+/* A pull quote, set as a statement rather than as a decorated box. */
+:where(.prose) blockquote {
+  margin-inline: 0;
+  border-left: 3px solid var(--accent);
+  padding: 0.1rem 0 0.1rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -0.025em;
+}
+
+:where(.prose) blockquote p {
+  margin: 0;
+}
+
+:where(.prose) code {
+  border-radius: 4px;
+  background: var(--muted);
+  padding: 0.12em 0.36em;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}
+
+:where(.prose) img {
+  width: 100%;
+  border-radius: var(--radius-block);
+}
+
+:where(.prose) figure {
+  margin: 2rem 0;
+}
+
+:where(.prose) figcaption {
+  margin-top: 0.7rem;
+  color: var(--muted-foreground);
+  font-size: var(--fs-cap);
+  line-height: 1.5;
+}
+
+:where(.prose) hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin-block: 2.5rem;
+}
+
+:where(.prose) table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-s);
+}
+
+:where(.prose) th,
+:where(.prose) td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem 0.75rem 0;
+  text-align: left;
+}
+
+:where(.prose) thead th {
+  color: var(--muted-foreground);
+  font-size: var(--fs-cap);
+  font-weight: 500;
+}
+
+.astro-code {
+  overflow-x: auto;
+  border-radius: var(--radius-block);
+  padding: 1.15rem 1.25rem;
+  font-size: var(--fs-s);
+  line-height: 1.7;
+}
+
+.astro-code code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.underline-hover {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  padding-bottom: 1px;
+  transition: background-size 0.3s var(--ease-out);
+}
+
+.underline-hover:hover {
+  background-size: 100% 1px;
+}
+
+.hover-fade-group > * {
+  transition: opacity 0.25s ease;
+}
+
+.hover-fade-group:hover > *:not(:hover) {
+  opacity: 0.55;
+}
+
+/*
+ * Slides a block up under an overlay header (see `SiteHeader`'s `overlay`
+ * prop). The bar keeps its place in the flow, so nothing below the block is
+ * ever covered — only this block runs behind it.
+ */
+.pull-under-header {
+  margin-top: calc(var(--header-height) * -1);
+}
+
+/* Whole-card hit area, kept above the media so nested links still work. */
+.overlay-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.overlay-link + * {
+  position: relative;
+}
+
+/* ==========================================================================
+   Motion
+   --------------------------------------------------------------------------
+   All CSS, no JavaScript. Two rules hold the layer together, and both come
+   from what a review site is for:
+
+   1. Nothing animates opacity. Every effect moves or grows something that is
+      already painted, so a slow phone or a screenshot taken half a second in
+      costs the reader the movement and nothing else.
+   2. Nothing animates a number the page is asserting. A score caught
+      mid-count is not a rough score, it is a wrong one — scores print settled.
+
+   Keyframes declare only a `from` state: at rest the animation defers to the
+   element's own transform, so the hover effects above still compose on top.
+
+   Entrances run once on load for the blocks that open a page — they are always
+   above the fold. Everything further down is scroll-driven where the browser
+   supports view timelines, and simply static where it does not. The
+   reduced-motion block below flattens the lot.
+   ========================================================================== */
+
+@keyframes rise-in {
+  from {
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes settle-in {
+  from {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes grow-bar {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Page openers: the front-page hero, article gradient bands, and archive
+   headers rise in with a short stagger. */
+.fhero__inner > *,
+.ahero__inner > *,
+.page-header > * {
+  animation: rise-in 0.6s var(--ease-out) backwards;
+}
+
+.fhero__inner > :nth-child(2),
+.ahero__inner > :nth-child(2),
+.page-header > :nth-child(2) {
+  animation-delay: 0.07s;
+}
+
+.fhero__inner > :nth-child(3),
+.ahero__inner > :nth-child(3),
+.page-header > :nth-child(3) {
+  animation-delay: 0.14s;
+}
+
+.fhero__inner > :nth-child(n + 4),
+.ahero__inner > :nth-child(n + 4),
+.page-header > :nth-child(n + 4) {
+  animation-delay: 0.21s;
+}
+
+/* The front-page cover settles from a slight oversize. It scales from the
+   centre inside a clipped frame, so the movement can never uncover an edge. */
+.fhero__media img {
+  animation: settle-in 1.3s var(--ease-out) backwards;
+}
+
+/* Scroll-driven, and strictly progressive: a browser without view timelines
+   renders the finished state and loses only the movement. Guarded by
+   `no-preference` because a scroll-driven animation has no duration for the
+   reduced-motion block below to zero out. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Cards rise a step as they enter. Movement only — a card is never held
+       back from a reader who came to scan the archive. */
+    .grid-cards > * {
+      animation: rise-in 1s var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 16%;
+    }
+
+    /* Meters grow from the left. Safe to animate because the figure each bar
+       represents is printed beside it: a bar caught halfway is short, not
+       wrong. */
+    .meter__fill {
+      transform-origin: left center;
+      animation: grow-bar 1s var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

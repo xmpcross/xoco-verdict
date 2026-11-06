@@ -1,0 +1,210 @@
+---
+title: "Northbeam Atlas II review: the quiet ones finally got comfortable"
+excerpt: Northbeam's second attempt at noise-cancelling headphones keeps the measurements and fixes the head. Six weeks in, it is the pair we reach for.
+category: Audio
+date: 2026-08-11
+author:
+  name: Priya Raghunathan
+  role: Senior reviewer, audio
+tags: ["Headphones", "Noise cancelling", "Bluetooth"]
+cover:
+  src: ./cover.webp
+  alt: Forest-green over-ear headphones with bronze details against a pale sage backdrop
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Atlas II
+  brand: Northbeam Audio
+  image:
+    src: ./product.jpg
+    alt: Black wireless over-ear headphones on a yellow background
+    creditName: C D-X
+    creditUrl: https://unsplash.com/photos/flatlay-photography-of-wireless-headphones-PDX_a_82obo
+  retailers:
+    - name: Northbeam Direct
+      url: https://example.com/northbeam/atlas-2
+      note: Two-year warranty when registered
+    - name: Wideband Audio
+      url: https://example.com/wideband/atlas-2
+  specs:
+    - group: Acoustics
+      items:
+        - label: Driver
+          value: 40 mm dynamic, bio-cellulose
+        - label: Frequency response
+          value: 12 Hz to 22 kHz
+        - label: Impedance
+          value: 32 ohm
+        - label: Codecs
+          value: SBC, AAC, aptX Adaptive, LDAC
+    - group: Cancellation
+      items:
+        - label: Measured isolation, 100 Hz
+          value: 31.4 dB
+        - label: Measured isolation, 1 kHz
+          value: 26.8 dB
+        - label: Modes
+          value: Adaptive, Fixed, Transparency, Off
+    - group: Power and physical
+      items:
+        - label: Battery, cancellation on
+          value: 38 h measured
+        - label: Battery, cancellation off
+          value: 52 h measured
+        - label: Charge to full
+          value: 1 h 52 m
+        - label: Weight
+          value: 286 g
+        - label: Folding
+          value: Flat only, no hinge
+award: editors-choice
+featured: true
+verdict: >-
+  The Atlas II is the first pair of headphones that measures like a Northbeam
+  product and wears like something designed for a human head. Isolation is the
+  best we have recorded under $400, the battery claim survives contact with a
+  real commute, and the tuning is neutral enough to be boring in the way good
+  monitoring gear is boring. The folding mechanism is gone and the case is
+  enormous, which is the price of the new headband.
+bestFor: You spend more than an hour a day in noise you did not choose, and you would rather hear a recording than an interpretation of it.
+skipIf: You need something that folds into a coat pocket, or you want headphones that make everything sound exciting.
+testedFor: six weeks and roughly 140 hours of listening
+scores:
+  - label: Noise cancellation
+    value: 9.4
+    weight: 2
+    note: 31.4 dB at 100 Hz, the best figure we have recorded in this price class.
+  - label: Sound quality
+    value: 8.8
+    weight: 2
+    note: Neutral with a gentle sub-bass lift. Nothing is hidden and nothing is flattered.
+  - label: Comfort
+    value: 9
+    weight: 1.5
+    note: 286 g and low clamp force. Six-hour sessions without a break in testing.
+  - label: Battery
+    value: 9
+    weight: 1
+    note: 38 hours measured with cancellation on, against a 40-hour claim.
+  - label: Build and repairability
+    value: 8
+    weight: 1
+    note: Replaceable pads and a published parts list, but a headband that no longer folds.
+  - label: Software
+    value: 6.5
+    weight: 0.5
+    note: The app works, and does nothing you will enjoy.
+pros:
+  - Best measured isolation under $400, by a clear margin
+  - Battery claim holds up at realistic listening levels
+  - Earpads and headband padding are replaceable, and the parts are listed
+  - Tuning is honest enough for actual monitoring work
+cons:
+  - Does not fold, and the case is larger than some laptop bags
+  - The companion app is slow and asks for an account it does not need
+  - Transparency mode has an audible hiss in quiet rooms
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+Northbeam has been making speakers since 1994 and headphones since 2019, and until
+now you could hear the difference. The first Atlas was an excellent transducer
+bolted to a headband that seemed to have been designed from a photograph of a head
+rather than a measurement of one. It won arguments and lost commutes.
+
+The Atlas II keeps the arguments.
+
+<KeyNumbers
+  items={[
+    { value: "31.4", unit: "dB", label: "Isolation at 100 Hz", note: "Class average: 24.0 dB" },
+    { value: "38", unit: "h", label: "Battery, cancellation on", note: "Claimed: 40 h" },
+    { value: "286", unit: "g", label: "Weight", note: "Down from 331 g" },
+  ]}
+/>
+
+## What the cancellation actually does
+
+Noise cancellation is easy to describe badly. Manufacturers quote a single number —
+usually the deepest attenuation their system reaches at the one frequency it is best
+at — and that number tells you almost nothing about a train carriage.
+
+We measure across the band on a fixed head-and-torso rig, three runs, pads reseated
+between each. The figure that matters for transport is the one at 100 Hz, because
+that is where engine and rail rumble lives, and it is where cheap systems fall over.
+
+<TestBench
+  caption="Sealed room, head-and-torso simulator, three runs averaged. The reference column is the mean of eleven cancelling headphones between $250 and $400 measured on the same rig."
+  rows={[
+    { label: "Isolation, 100 Hz", result: "31.4 dB", reference: "24.0 dB", better: true },
+    { label: "Isolation, 300 Hz", result: "28.9 dB", reference: "22.6 dB", better: true },
+    { label: "Isolation, 1 kHz", result: "26.8 dB", reference: "25.1 dB", better: true },
+    { label: "Isolation, 4 kHz", result: "19.2 dB", reference: "21.8 dB", better: false },
+    { label: "Response shift, ANC on", result: "0.6 dB", reference: "2.4 dB", better: true },
+  ]}
+/>
+
+The pattern is consistent with what Northbeam publishes, which is worth saying out
+loud: the company's own numbers matched ours to within 1.2 dB at every point we
+measured. That is not universal.
+
+The one place the Atlas II gives ground is high treble, where passive isolation does
+most of the work and the pad seal matters more than the electronics. If your problem
+is a colleague two desks away rather than a diesel engine, the gap between this and
+a cheaper pair narrows considerably.
+
+<Callout tone="method" title="Why we never quote a single dB figure">
+  A cancellation system is a filter, and a filter has a shape. Averaging that shape into one number
+  lets a manufacturer optimise for the average instead of for the noise you are actually sitting in.
+  Every cancellation figure on this site is quoted at a stated frequency for that reason.
+</Callout>
+
+## The tuning
+
+Neutral, with about 2 dB of lift below 80 Hz and a very slight recession around
+3 kHz that takes the edge off compressed pop without dulling anything.
+
+This is not exciting. Played against the Drift Pro, which lifts the low bass harder
+and pushes the presence region forward, the Atlas II sounds flat for about ninety
+seconds and then sounds correct for the rest of the day. That is the trade Northbeam
+has always made, and it remains the right one for anything you listen to for hours.
+
+Two specific notes from listening. First, the cancellation does not audibly change
+the frequency response when switched on — a common failing, and one that makes a
+headphone useless for critical work. Second, at maximum volume there is no
+compression or distortion we could hear or measure, which suggests the amplifier has
+more headroom than the drivers need.
+
+## Living with it
+
+The headband is the story. Clamp force is down from 6.1 N to 4.4 N, the pad opening
+is 8 mm taller, and the weight has dropped by 45 g. In practice that is the
+difference between taking them off after two hours and forgetting they are on.
+
+The cost is the folding mechanism, which has been deleted. The Atlas II lays flat and
+that is all. Northbeam's engineering note says the hinge was the most common warranty
+claim on the original, which is a defensible reason to remove it, but the supplied
+case is 24 cm across and will not go into a bag that is already carrying a laptop.
+
+<Callout tone="caution" title="Check the firmware before judging transparency mode">
+  Units shipped before 2.1.4 have an audible noise floor in transparency. The update reduces it
+  considerably but does not eliminate it. Ours arrived on 2.1.2.
+</Callout>
+
+## Against the alternatives
+
+Inside the Northbeam catalogue the useful comparison is not the Cadence One —
+different product, different room — but the original Atlas, still being sold at a
+discount. Do not buy it. The measurements are close and the wearing experience is
+not.
+
+Against the Halcyon Drift Pro, the question is form factor before anything else. The
+Drift Pro isolates about 7 dB less at 100 Hz and sounds livelier; it also fits in a
+pocket, which the Atlas II emphatically does not.
+
+## The verdict
+
+At $349 this is the pair to buy if you want the noise to go away and the music to
+stay honest. The case is a genuine annoyance and the app is a waste of a download.
+Neither is a reason to buy something that isolates 7 dB worse.

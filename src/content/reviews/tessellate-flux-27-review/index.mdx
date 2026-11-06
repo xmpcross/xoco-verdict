@@ -1,0 +1,183 @@
+---
+title: "Tessellate Flux 27 review: accurate colour with nothing to set up"
+excerpt: A 4K panel that measures well straight out of the box, plus 96 W of power delivery. The compromises are all in the software you will never open.
+category: Computing
+date: 2026-07-27
+author:
+  name: Marcus Oyelaran
+  role: Lead reviewer, computing
+tags: ["Monitors", "Colour accuracy", "USB-C"]
+cover:
+  src: ./cover.webp
+  alt: A slim desktop monitor on an off-white plinth against a pale sage-gray backdrop
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Flux 27
+  brand: Tessellate
+  image:
+    src: ./product.jpg
+    alt: A desktop monitor and keyboard on a desk lit in blue
+    creditName: Daniel Korpai
+    creditUrl: https://unsplash.com/photos/flat-screen-computer-monitor-turned-on-beside-black-keyboard-8GDCzWrcE3M
+  retailers:
+    - name: Tessellate Store
+      url: https://example.com/tessellate/flux-27
+    - name: Sable Computing
+      url: https://example.com/sable/flux-27
+      note: Includes a 3-year dead-pixel policy
+  specs:
+    - group: Panel
+      items:
+        - label: Size and type
+          value: 27 in IPS Black
+        - label: Resolution
+          value: 3840 x 2160
+        - label: Refresh
+          value: 120 Hz
+        - label: Contrast, measured
+          value: 1780:1
+        - label: Brightness, measured
+          value: 428 nits
+    - group: Colour
+      items:
+        - label: sRGB coverage
+          value: 100%
+        - label: DCI-P3 coverage
+          value: 96%
+        - label: Out-of-box accuracy
+          value: 1.3 average error
+    - group: Connectivity
+      items:
+        - label: Inputs
+          value: 2 HDMI 2.1, DisplayPort 1.4, USB-C
+        - label: USB-C power delivery
+          value: 96 W
+        - label: Hub
+          value: 3 USB-A, 1 USB-C, 2.5 GbE
+award: best-value
+verdict: >-
+  Out of the box the Flux 27 measures an average colour error of 1.3, which is
+  better than most monitors manage after a calibration pass, and it does it at $649
+  with a 96 W USB-C connection and a stand that moves in every axis. The on-screen
+  menu is dreadful and the speakers should not exist. Neither matters, because a
+  monitor is a panel and a hub, and both of those are excellent.
+bestFor: You want accurate colour and one cable to your laptop, without owning a colorimeter.
+skipIf: You need HDR that means anything, or you play competitive games above 120 Hz.
+testedFor: six weeks as a primary display, plus a full calibration workup
+scores:
+  - label: Colour accuracy
+    value: 9.4
+    weight: 2.5
+    note: 1.3 average error out of the box, 0.7 after profiling.
+  - label: Panel quality
+    value: 8.6
+    weight: 2
+    note: 1780:1 contrast and 428 nits, both good for IPS.
+  - label: Connectivity
+    value: 9
+    weight: 1.5
+    note: 96 W USB-C, 2.5 GbE, and a four-port hub that works on both inputs.
+  - label: Ergonomics
+    value: 8.8
+    weight: 1
+    note: Height, tilt, swivel, and a full 90 degree pivot.
+  - label: HDR
+    value: 4.5
+    weight: 0.5
+    note: Certified, and functionally decorative. 428 nits is not HDR.
+  - label: On-screen menu
+    value: 5
+    weight: 0.5
+    note: A four-way stick, six levels deep, with no labels.
+pros:
+  - Genuinely accurate without profiling, which almost nothing at this price is
+  - 96 W of USB-C power runs a 14-inch laptop with headroom
+  - Stand adjusts in every axis, including pivot to portrait
+  - 2.5 gigabit Ethernet built into the hub
+cons:
+  - HDR certification is meaningless at this brightness
+  - The on-screen menu is genuinely difficult to navigate
+  - Built-in speakers are worse than a laptop's
+  - Firmware updates require a Windows-only utility
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+Monitor reviews spend a lot of words on features and very few on the only thing that
+distinguishes a good panel from an average one, which is whether the colour it shows
+you is the colour in the file.
+
+<KeyNumbers
+  items={[
+    {
+      value: "1.3",
+      label: "Average colour error, out of box",
+      note: "Below 2 is professional grade",
+    },
+    { value: "1780", unit: ":1", label: "Measured contrast" },
+    { value: "96", unit: "W", label: "USB-C power delivery" },
+  ]}
+/>
+
+## Out of the box
+
+We profile every monitor twice: once as it arrives in its default mode, and once
+after a full calibration. The first number is the one that matters for almost
+everybody, because almost nobody owns a colorimeter.
+
+<TestBench
+  caption="X-Rite i1Display Pro, 24 patches, sRGB target, default picture mode, after 30 minutes of warm-up. Reference is the mean of seven 27-inch 4K IPS monitors between $500 and $800."
+  rows={[
+    { label: "Average colour error, default", result: "1.3", reference: "3.4", better: true },
+    { label: "Maximum colour error, default", result: "2.6", reference: "6.1", better: true },
+    { label: "Average error after profiling", result: "0.7", reference: "1.1", better: true },
+    { label: "White point, default", result: "6540 K", reference: "7180 K", better: true },
+    { label: "Gamma tracking", result: "2.21", reference: "2.34", better: true },
+    { label: "Uniformity, corner to centre", result: "8%", reference: "13%", better: true },
+  ]}
+/>
+
+An average error of 1.3 is the sort of figure that used to require a monitor with a
+factory calibration report and a four-figure price. Tessellate ships one in the box,
+per-unit, and ours matched it.
+
+<Callout tone="method" title="Why we quote out-of-box accuracy first">
+  A monitor's calibrated performance tells you about the panel. Its out-of-box performance tells you
+  what you will actually be looking at, because the overwhelming majority of monitors are never
+  profiled. We publish both, in that order.
+</Callout>
+
+## Contrast, brightness, and the HDR claim
+
+1780:1 measured contrast is good for IPS and nowhere near OLED. 428 nits full-field
+is bright enough for a room with windows and not bright enough for direct sun.
+
+The HDR certification on the box is the lowest tier available and means nothing at
+this brightness. There is no local dimming, so enabling HDR raises the black level
+across the whole panel and makes everything worse. Leave it off.
+
+## The hub, which is the underrated part
+
+96 W of power delivery, four USB ports, and 2.5 gigabit Ethernet, all live on both
+the USB-C and the DisplayPort inputs — the second half of that sentence is the
+unusual one. Plenty of monitors have a hub that only works when the video is coming
+over USB-C.
+
+With a Meridian 14 attached this is genuinely one cable: power, display, network,
+keyboard, and an external drive.
+
+## The menu
+
+A four-way stick under the bottom bezel, six levels of hierarchy, and icons without
+labels. Changing input takes five presses and we never learned the sequence. It is
+the clearest possible illustration of where Tessellate spends money and where it
+does not.
+
+## The verdict
+
+The best monitor under $700 we have measured, provided you never need to open the
+menu. Turn HDR off, ignore the speakers, and enjoy a panel that is right the first
+time you switch it on.

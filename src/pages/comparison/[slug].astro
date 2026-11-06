@@ -1,0 +1,283 @@
+---
+import { render } from "astro:content";
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import ArticleFooter from "@/components/blocks/ArticleFooter.astro";
+import ArticleHero from "@/components/blocks/ArticleHero.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import SectionHeader from "@/components/blocks/SectionHeader.astro";
+import ComparisonTable from "@/components/compare/ComparisonTable.astro";
+import Icon from "@/components/ui/Icon.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { siteConfig } from "@/config/site";
+import { loadLibrary, type Library } from "@/lib/articles";
+import {
+  articleBylines,
+  categoryHref,
+  relatedArticles,
+  summarize,
+  type Comparison,
+} from "@/lib/content";
+
+export async function getStaticPaths() {
+  const library = await loadLibrary();
+  return library.comparisons.map((comparison) => ({
+    params: { slug: comparison.id },
+    props: { comparison, library },
+  }));
+}
+
+interface Props {
+  comparison: Comparison;
+  library: Library;
+}
+
+const { comparison, library } = Astro.props;
+const { Content } = await render(comparison);
+
+const data = comparison.data;
+const summary = summarize(comparison);
+
+/**
+ * `winner` and every `scenarios[].item` are indexes into `items`, so a
+ * frontmatter typo would otherwise render a blank name. Failing the build is
+ * the friendlier outcome.
+ */
+const outOfRange = [data.winner, ...data.scenarios.map((scenario) => scenario.item)].find(
+  (index) => index < 0 || index >= data.items.length,
+);
+if (outOfRange !== undefined) {
+  throw new Error(
+    `Comparison "${comparison.id}" points at item ${outOfRange}, but it only lists ${data.items.length}.`,
+  );
+}
+
+const winner = data.items[data.winner];
+const related = relatedArticles(library.articles, comparison, 3).map(summarize);
+const url = new URL(summary.href, siteConfig.siteUrl).toString();
+const absoluteImage = new URL(data.cover.src.src, siteConfig.siteUrl).toString();
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: data.title,
+  description: data.excerpt,
+  image: absoluteImage,
+  datePublished: data.date.toISOString(),
+  dateModified: (data.updatedDate ?? data.date).toISOString(),
+  author: articleBylines(comparison).map((byline) => ({ "@type": "Person", name: byline.name })),
+  publisher: { "@type": "Organization", name: siteConfig.authorName },
+  mainEntityOfPage: url,
+  about: data.items.map((item) => ({ "@type": "Product", name: item.name })),
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.excerpt}
+  image={absoluteImage}
+  type="article"
+  structuredData={structuredData}
+>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <article>
+      <ArticleHero
+        summary={summary}
+        crumbs={[{ label: data.category, href: categoryHref(data.category) }]}
+      />
+
+      {/* No panel. The answer is the opening of the article, so it is set as
+          one: an eyebrow, the winner's name at headline scale, the reasoning at
+          reading size, and a rule under it. A box here read as a widget parked
+          above the table. */}
+      <div class="container-reading versus-body">
+        <section class="winner" aria-labelledby="winner-title">
+          <p class="txt-eyebrow txt-dim">The short answer</p>
+          <h2 id="winner-title" class="winner__name">
+            {winner.reviewHref ? (
+              <a class="underline-hover" href={winner.reviewHref}>{winner.name}</a>
+            ) : (
+              winner.name
+            )}
+          </h2>
+          <p class="txt-l winner__verdict">{data.verdict}</p>
+          {
+            winner.retailer && (
+              <a
+                class="btn btn--buy"
+                href={winner.retailer.url}
+                rel={siteConfig.affiliate.rel}
+                target="_blank"
+              >
+                {siteConfig.affiliate.ctaLabel} at {winner.retailer.name}
+                <Icon name="external" size={13} />
+                <span class="sr-only"> (opens in a new tab)</span>
+              </a>
+            )
+          }
+        </section>
+
+        {data.intro && <p class="txt-l versus-intro">{data.intro}</p>}
+      </div>
+
+      {/* At the reading measure, like everything else on the page: the table
+          used to sit at the in-between `--measure` width, which made it the one
+          block that did not line up with the column above and below it. Two
+          products still fit; three or four scroll sideways, as they always
+          did. */}
+      <div class="container-reading versus-table">
+        <ComparisonTable comparison={comparison} />
+      </div>
+
+      {
+        data.scenarios.length > 0 && (
+          <div class="container-reading versus-body">
+            <section aria-labelledby="versus-scenarios">
+              <h2 id="versus-scenarios" class="txt-h3 scenarios__title">Which one, for whom</h2>
+              <dl class="scenarios">
+                {data.scenarios.map((scenario) => (
+                  <div class="scenario">
+                    <dt class="scenario__label">{scenario.label}</dt>
+                    <dd class="scenario__answer">
+                      <span class="txt-sub scenario__pick">{data.items[scenario.item].name}</span>
+                      <span class="txt-s txt-dim">{scenario.detail}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          </div>
+        )
+      }
+
+      <div class="container-reading versus-body">
+        <div class="prose">
+          <Content />
+        </div>
+
+        <ArticleFooter
+          title={data.title}
+          url={url}
+          tags={data.tags}
+          bylines={articleBylines(comparison)}
+          updatedDate={data.updatedDate}
+        />
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="container section section-top" aria-labelledby="versus-related">
+          <SectionHeader
+            title="Keep reading"
+            href="/comparisons/"
+            linkLabel="All comparisons"
+            id="versus-related"
+          />
+          <div class="grid-cards">
+            {related.map((item) => (
+              <ArticleCard summary={item} showExcerpt />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <NewsletterBand id="versus-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .versus-body {
+      padding-top: 2rem;
+    }
+
+    /* The table sat directly under the paragraph above it: the class that was
+       supposed to space it had never been defined anywhere. */
+    .versus-table {
+      padding-block: 3.25rem 0.5rem;
+    }
+
+    .winner {
+      display: grid;
+      justify-items: start;
+      gap: 0.9rem;
+    }
+
+    .winner__name {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.875rem, 4vw, 2.75rem);
+      font-weight: var(--weight-title);
+      letter-spacing: -0.035em;
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    .winner__name a:hover {
+      color: var(--accent);
+    }
+
+    .winner__verdict {
+      max-width: 62ch;
+      text-wrap: pretty;
+    }
+
+    /*
+     * The paragraph between the answer and the table, over a rule: it says what
+     * the two products are and what is about to be measured, so the page does
+     * not go straight from a sentence to forty numbers.
+     */
+    .versus-intro {
+      margin: 2rem 0 0;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      color: color-mix(in srgb, var(--foreground) 82%, transparent);
+      text-wrap: pretty;
+    }
+
+    .scenarios__title {
+      margin-bottom: 1.25rem;
+    }
+
+    /*
+     * A definition list rather than a row of tiles: the question on the left,
+     * the answer on the right, one per line. It reads as a conversation, and it
+     * sits at the same measure as the prose above it.
+     */
+    .scenarios {
+      display: grid;
+      margin: 0;
+    }
+
+    .scenario {
+      display: grid;
+      gap: 0.25rem 1.75rem;
+      border-top: 1px solid var(--border);
+      padding-block: 1rem;
+    }
+
+    @media (min-width: 40rem) {
+      .scenario {
+        grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+        align-items: baseline;
+      }
+    }
+
+    .scenario__label {
+      color: var(--muted-foreground);
+      font-size: var(--fs-s);
+    }
+
+    .scenario__answer {
+      display: grid;
+      gap: 0.2rem;
+      margin: 0;
+      min-width: 0;
+    }
+  </style>
+</BaseLayout>

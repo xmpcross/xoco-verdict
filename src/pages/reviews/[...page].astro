@@ -1,0 +1,30 @@
+---
+import type { GetStaticPathsOptions, Page } from "astro";
+import ArchiveLayout from "@/layouts/ArchiveLayout.astro";
+import { loadLibrary } from "@/lib/articles";
+import { featuredFirst, kindMeta, summarize, type Article, type ArticleSummary } from "@/lib/content";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const library = await loadLibrary();
+  const summaries = featuredFirst(library.reviews).map(summarize);
+  return paginate(summaries, { pageSize: 12, props: { articles: library.articles } });
+}
+
+interface Props {
+  page: Page<ArticleSummary>;
+  articles: Article[];
+}
+
+const { page, articles } = Astro.props;
+const meta = kindMeta.review;
+---
+
+<ArchiveLayout
+  title={meta.plural}
+  description={meta.blurb}
+  documentTitle={page.currentPage > 1 ? `${meta.plural} — page ${page.currentPage}` : meta.plural}
+  meta={`${page.total} published`}
+  articles={articles}
+  page={page}
+  label="Reviews pagination"
+/>

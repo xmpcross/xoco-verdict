@@ -1,0 +1,65 @@
+---
+import Avatar from "@/components/ui/Avatar.astro";
+import { authorHref, type Byline } from "@/lib/content";
+
+/**
+ * Every name on an article, each linked to its own archive. Portraits overlap
+ * into one stack when a piece is coauthored, so a two-name byline takes the
+ * same height as a one-name byline.
+ */
+interface Props {
+  bylines: Byline[];
+  /** Set when the byline sits on a photograph rather than on a page surface. */
+  onDark?: boolean;
+  /** Prints "by" ahead of the first name — article openings read as prose. */
+  prefix?: boolean;
+  /** Hides the portraits, for rows where there is no vertical space for them. */
+  portraits?: boolean;
+  /**
+   * Names printed in full before the rest are counted off as "+2". Cards pass
+   * 1 so a coauthored byline stays as short as a solo one. Leave it unset to
+   * print every name, which is what article pages do.
+   */
+  max?: number;
+}
+
+const { bylines, onDark = false, prefix = false, portraits = true, max } = Astro.props;
+const named = max && bylines.length > max ? bylines.slice(0, max) : bylines;
+/** Counted off rather than printed — the stacked portraits already say "more". */
+const uncredited = bylines.slice(named.length);
+---
+
+<span class="meta__byline">
+  {
+    portraits && (
+      <span class:list={["avatar-stack", bylines.length > 1 && "avatar-stack--multi"]}>
+        {bylines.map((byline) => (
+          <Avatar name={byline.name} onDark={onDark} />
+        ))}
+      </span>
+    )
+  }
+  {prefix && <span class="meta__conjunction">by</span>}
+  {
+    named.map((byline, index) => (
+      <>
+        {index > 0 &&
+          (index === named.length - 1 ? (
+            <span class="meta__conjunction">&amp;</span>
+          ) : (
+            <span class="meta__conjunction meta__conjunction--tight">,</span>
+          ))}
+        <a class="meta__author" href={authorHref(byline.name)}>{byline.name}</a>
+      </>
+    ))
+  }
+  {
+    uncredited.length > 0 && (
+      <span class="meta__conjunction">
+        {`+${uncredited.length}`}
+        {/* The count is enough on the page; a screen reader still hears the names. */}
+        <span class="sr-only">{` ${uncredited.map((byline) => byline.name).join(", ")}`}</span>
+      </span>
+    )
+  }
+</span>

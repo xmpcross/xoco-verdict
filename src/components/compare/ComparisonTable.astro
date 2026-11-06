@@ -1,0 +1,202 @@
+---
+import { Image } from "astro:assets";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import type { Comparison } from "@/lib/content";
+
+/**
+ * The head-to-head table. Products are columns, criteria are rows, and the
+ * winning cell in each row is set in ink and weight against the muted value
+ * beside it — which is the only reason a comparison table beats putting two
+ * spec sheets next to each other. No tick: with two values on one line, the
+ * heavier one is the answer.
+ *
+ * On a phone the table scrolls horizontally rather than reflowing: a comparison
+ * that stacks into one column per product stops being a comparison.
+ */
+interface Props {
+  comparison: Comparison;
+  id?: string;
+  class?: string;
+}
+
+const { comparison, id = "versus", class: className = "", ...rest } = Astro.props;
+const { items, rows } = comparison.data;
+const hasScores = items.some((item) => item.score !== undefined);
+---
+
+<section class:list={["versus", className]} aria-labelledby={`${id}-title`} {...rest}>
+  <h2 id={`${id}-title`} class="txt-h3 versus__title">Side by side</h2>
+
+  <div class="table-scroll">
+    <table class="data-table versus__table">
+      <caption class="sr-only">{comparison.data.title} — specification comparison</caption>
+      <thead>
+        <tr>
+          <th scope="col"><span class="sr-only">Criterion</span></th>
+          {
+            items.map((item) => (
+              <th scope="col" class="versus__head">
+                <span class="versus__product">
+                  {item.image && (
+                    <span class="versus__thumb">
+                      <Image
+                        src={item.image.src}
+                        alt=""
+                        width={128}
+                        height={128}
+                        fit="cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                  )}
+                  <span class="versus__names">
+                    {item.brand && <span class="versus__brand">{item.brand}</span>}
+                    <span class="versus__name">{item.name}</span>
+                  </span>
+                </span>
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        {
+          hasScores && (
+            <tr>
+              <th scope="row">Our score</th>
+              {items.map((item) => (
+                <td>
+                  {item.score === undefined ? (
+                    <span class="txt-dim">Not tested</span>
+                  ) : (
+                    <ScoreBadge score={item.score} size="sm" />
+                  )}
+                </td>
+              ))}
+            </tr>
+          )
+        }
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              {row.values.map((value, index) => (
+                <td class:list={[row.winner === index && "is-winner"]}>
+                  {value}
+                  {/* The weight says which cell won; this is the same fact for
+                      a reader who cannot see it. */}
+                  {row.winner === index && <span class="sr-only"> — the better of the two</span>}
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .versus__title {
+    margin-bottom: 1.25rem;
+  }
+
+  .versus__table {
+    min-width: 34rem;
+  }
+
+  /*
+   * Banded rows instead of hairlines. Across a dozen criteria the eye is
+   * tracking sideways, not down, and a continuous fill holds a row together
+   * over a long scroll better than a rule under it does. Running both would be
+   * two systems of separation on one table.
+   */
+  .versus__table :global(tbody tr:nth-child(odd)) {
+    background: var(--wash);
+  }
+
+  .versus__table :global(tbody th),
+  .versus__table :global(tbody td) {
+    border-bottom: 0;
+  }
+
+  .versus__table :global(th),
+  .versus__table :global(td) {
+    padding-inline: 0.85rem;
+  }
+
+  /*
+   * The criterion column is pinned, so a reader scrolling the products
+   * sideways on a phone can still see what they are comparing. A sticky cell
+   * does not inherit the row's fill, so it carries the band itself — without
+   * that the columns would scroll visibly underneath it.
+   */
+  .versus__table :global(th[scope="row"]) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--background);
+  }
+
+  .versus__table :global(tbody tr:nth-child(odd) th[scope="row"]) {
+    background: var(--wash);
+  }
+
+  /*
+   * Column headers align to the top and share one shape: a square thumbnail
+   * beside the name. Square matters — product shots arrive in whatever crop the
+   * photographer used, and a row of different rectangles is what made this
+   * header look ragged.
+   */
+  .versus__head {
+    min-width: 12rem;
+    vertical-align: top;
+    white-space: normal;
+  }
+
+  .versus__product {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  .versus__thumb {
+    display: block;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: var(--radius-block);
+    background: var(--muted);
+  }
+
+  .versus__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .versus__names {
+    display: grid;
+    gap: 0.05rem;
+    min-width: 0;
+  }
+
+  .versus__brand {
+    color: var(--muted-foreground);
+    font-size: var(--fs-cap);
+    font-weight: 400;
+  }
+
+  .versus__name {
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--fs-h6);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+/**
+ * The full specification, grouped. One heading per group and one borderless
+ * table under it — no accordions, no outer frame, no counters. A spec sheet is
+ * a reference, and a reader scanning for one number should be able to see all
+ * of them at once.
+ */
+interface Props {
+  specs: { group: string; items: { label: string; value: string }[] }[];
+  title?: string;
+  id?: string;
+  class?: string;
+}
+
+const { specs, title = "Specifications", id = "specs", class: className = "", ...rest } = Astro.props;
+---
+
+{
+  specs.length > 0 && (
+    <section class:list={["spec", className]} aria-labelledby={`${id}-title`} {...rest}>
+      <h2 id={`${id}-title`} class="txt-h3 spec__title">{title}</h2>
+
+      {specs.map((group) => (
+        <div class="spec__group">
+          <h3 class="txt-sub-xs spec__group-title">{group.group}</h3>
+          <table class="data-table">
+            <caption class="sr-only">{`${group.group} specifications`}</caption>
+            <tbody>
+              {group.items.map((item) => (
+                <tr>
+                  <th scope="row">{item.label}</th>
+                  <td class="spec__value">{item.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+<style>
+  .spec__title {
+    margin-bottom: 1.25rem;
+  }
+
+  .spec__group + .spec__group {
+    margin-top: 2rem;
+  }
+
+  .spec__group-title {
+    margin-bottom: 0.35rem;
+    color: var(--muted-foreground);
+  }
+
+  .spec :global(th[scope="row"]) {
+    width: 45%;
+    min-width: 9rem;
+  }
+
+  .spec__value {
+    font-weight: 500;
+  }
+</style>

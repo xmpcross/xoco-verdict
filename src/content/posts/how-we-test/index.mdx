@@ -1,0 +1,122 @@
+---
+title: How we test
+excerpt: The protocols, the rigs, the minimum test periods, and the arrangements that make our obvious failure modes harder. Read this before you trust a number on this site.
+category: Workspace
+date: 2026-08-14
+updatedDate: 2026-08-14
+author:
+  name: Dana Whitlock
+  role: Editor-in-chief
+tags: ["Methodology", "Scoring", "Independence"]
+cover:
+  src: ./cover.webp
+  alt: A close-up of the mesh back and lumbar support on a modern office chair
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+featured: true
+keyTakeaways:
+  - We buy every unit at retail. Where a manufacturer lends one, the review says so on its face.
+  - Testers do not see the price of a product until scoring is finished.
+  - Every score is the weighted average of a published breakdown, computed rather than typed.
+  - Each category has a minimum test period, and reviews are not published early.
+  - When we are wrong we correct the page, date the correction, and describe it.
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+
+Every review site says it is rigorous. The useful version of that claim is a list of
+things you could check, so this page is a list of things you could check.
+
+## Where the products come from
+
+We buy them, at retail, at the price you would pay. In the last twelve months that
+covers 218 of the 224 products we have tested.
+
+The remaining six were loan units from manufacturers, all for products that had not
+gone on sale. Every one of those reviews says so in the panel at the top, in the same
+line that gives the test duration. We do not accept gifted units, and we do not
+accept units on the condition that we return them by a date.
+
+<Callout tone="note" title="Why this matters more than it sounds">
+  A gifted unit is not primarily a bribe. It is a sampling problem: manufacturers send their
+  best-performing examples, and a review of a hand-picked unit describes a product you cannot buy.
+  Retail purchase means we get whatever came off the line.
+</Callout>
+
+## The price is hidden until the end
+
+Testers work from a spreadsheet in which the price column is blank. It is filled in
+when the subscores are locked.
+
+This is not a moral achievement — it is a mitigation for a specific, well-documented
+effect, which is that knowing something costs $900 makes people find reasons it is
+good. It does not survive contact with an obviously premium product, and we do not
+pretend otherwise. It does mean that "for the money" reasoning enters the process
+once, deliberately, at the end.
+
+## Minimum test periods
+
+A review is not published before its category's minimum, whatever the deadline.
+
+| Category  | Minimum                               |
+| --------- | ------------------------------------- |
+| Audio     | Four weeks of daily use               |
+| Computing | Four weeks as a primary machine       |
+| Cameras   | 2,000 frames                          |
+| Kitchen   | 200 preparations                      |
+| Fitness   | 400 miles, or six weeks for wearables |
+| Workspace | Six weeks of working days             |
+
+These are floors, not targets. The Stride 5 review took eleven weeks because 400
+miles takes eleven weeks.
+
+## The score is computed, not chosen
+
+Every review carries a breakdown of weighted subscores, and the headline number is
+the weighted average of them. It is calculated by the site at build time from the
+numbers in the article's own frontmatter.
+
+This is a deliberate constraint on ourselves. An editor cannot decide a product
+"feels like an 8.5" and then arrange the subscores to suit, because the badge and
+the table are the same data. If you disagree with our weighting — and the weights
+are published on every review — you can do the arithmetic yourself.
+
+<Callout tone="method" title="An example">
+  The Atlas II scores 9.4 for cancellation at a weight of 2, and 6.5 for software at a weight of
+  0.5. If software mattered to you as much as cancellation does to us, the same review would produce
+  a different number, and you can see exactly how much.
+</Callout>
+
+## The bands
+
+Scores land in one of five bands, and the band is what we would actually say out
+loud. A 7.2 is not "good" — it is "good, with caveats", and the caveats are the
+reason the article exists.
+
+We do not use the top of the scale often. In two years, three products have scored
+above 9.5, and we expect that to stay rare, because a scale where everything good
+scores 9 is a scale with three usable values.
+
+## Corrections and re-tests
+
+Guides carry a revision date and a note describing what changed. Reviews are re-opened
+when firmware, pricing, or a competitor moves enough to change the answer.
+
+If we get something wrong, we correct the page rather than issuing a separate one,
+date the correction, and describe what was wrong. Withdrawn recommendations are
+stated as withdrawn. A page that quietly stops mentioning a product it used to
+recommend is a page that is lying by omission.
+
+## What we do not do
+
+**Sponsored reviews.** None, at any price, in any format.
+
+**Pre-release embargoed scores.** We will not agree to publish on a date set by a
+manufacturer, because that date is always before the minimum test period.
+
+**Review copies of software or subscriptions.** We pay, on the same tier a reader
+would.
+
+**Manufacturer-supplied measurements.** We publish our own, and where the two
+disagree we say so. Where they match — as Northbeam's did to within 1.2 dB — we say
+that too, because it is the more useful information.

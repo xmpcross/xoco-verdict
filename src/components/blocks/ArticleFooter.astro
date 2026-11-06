@@ -1,0 +1,164 @@
+---
+import Avatar from "@/components/ui/Avatar.astro";
+import Icon from "@/components/ui/Icon.astro";
+import ShareButton from "@/components/ui/ShareButton.astro";
+import ShareSheet from "@/components/blocks/ShareSheet.astro";
+import { authorProfile } from "@/config/authors";
+import { authorHref, formatDate, tagHref, type Byline } from "@/lib/content";
+
+/**
+ * Closes an article: revision note, tags, who wrote it, and how to share it.
+ * The revision note comes first deliberately — on a review site "what changed
+ * and when" is part of the argument, not a footnote.
+ *
+ * This block also renders the page's one share sheet, because it is the block
+ * that is handed the article's canonical URL. The button under the byline in
+ * `ArticleHero` opens the same sheet.
+ */
+interface Props {
+  title: string;
+  url: string;
+  tags: string[];
+  bylines: Byline[];
+  updatedDate?: Date;
+  /** What changed on the last revision, when the article records it. */
+  updateNote?: string;
+  class?: string;
+}
+
+const { title, url, tags, bylines, updatedDate, updateNote, class: className = "" } = Astro.props;
+---
+
+<footer class:list={["afoot", className]}>
+  {
+    updatedDate && (
+      <p class="afoot__revision">
+        <Icon name="sliders" size={15} />
+        <span>
+          <strong>
+            Updated <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, "long")}</time>.
+          </strong>{" "}
+          {updateNote ?? "Prices, availability, and rival products were re-checked."}
+        </span>
+      </p>
+    )
+  }
+
+  {
+    tags.length > 0 && (
+      <section class="afoot__block" aria-labelledby="afoot-tags">
+        <p id="afoot-tags" class="txt-label txt-dim afoot__label">Filed under</p>
+        <ul class="afoot__tags">
+          {tags.map((tag) => (
+            <li>
+              <a class="chip" href={tagHref(tag)}>{tag}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="afoot__block" aria-labelledby="afoot-authors">
+    <p id="afoot-authors" class="txt-label txt-dim afoot__label">
+      {bylines.length > 1 ? "Who tested it" : "Who tested it"}
+    </p>
+    <div class="afoot__authors">
+      {
+        bylines.map((byline) => {
+          const profile = authorProfile(byline.name);
+          return (
+            <div class="afoot__author">
+              <Avatar name={byline.name} size="lg" />
+              <div class="afoot__author-copy">
+                <p class="txt-h5">
+                  <a class="underline-hover" href={authorHref(byline.name)}>{byline.name}</a>
+                </p>
+                <p class="txt-label txt-dim">{byline.role}</p>
+                {profile?.bio && <p class="txt-s txt-dim afoot__bio">{profile.bio}</p>}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  {/* The same sheet the byline opens, offered again where the reading ends. */}
+  <div class="afoot__share">
+    <ShareButton variant="button" />
+  </div>
+
+  <ShareSheet title={title} url={url} />
+</footer>
+
+<style>
+  .afoot {
+    border-top: 1px solid var(--border);
+    margin-top: 2.5rem;
+    padding-top: 1.75rem;
+  }
+
+  .afoot__revision {
+    display: grid;
+    grid-template-columns: 0.9375rem minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: start;
+    margin: 0 0 1.75rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+    background: var(--accent-wash);
+    padding: 0.8rem 1rem;
+    font-size: var(--fs-s);
+    line-height: 1.55;
+  }
+
+  .afoot__block + .afoot__block {
+    margin-top: 2rem;
+  }
+
+  .afoot__label {
+    margin: 0 0 0.7rem;
+  }
+
+  .afoot__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .afoot__authors {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .afoot__author {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .afoot__author-copy {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .afoot__bio {
+    margin-top: 0.2rem;
+  }
+
+  .afoot__share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    /* The same gap the blocks above it keep — the button is the next block, not
+       a tail on the last author's bio. */
+    margin-top: 2rem;
+  }
+</style>

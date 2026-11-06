@@ -1,0 +1,129 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import { siteConfig } from "@/config/site";
+import type { Retailer } from "@/lib/retailers";
+
+/**
+ * Where to buy it, and the disclosure that has to sit next to a commercial
+ * link. No prices: a catalogue of them goes stale within days, and a wrong
+ * number costs more trust than it earns in clicks — so each row is a retailer
+ * and a button that goes and finds out.
+ *
+ * Every outbound link carries `siteConfig.affiliate.rel`. Turning
+ * `affiliate.enabled` off keeps the retailer list and drops the disclosure.
+ */
+interface Props {
+  productName: string;
+  retailers: Retailer[];
+  title?: string;
+  id?: string;
+  class?: string;
+}
+
+const {
+  productName,
+  retailers,
+  title = "Where to buy",
+  id = "buy",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const affiliate = siteConfig.affiliate;
+---
+
+{
+  retailers.length > 0 && (
+    <section
+      class:list={["buybox panel panel--outline", className]}
+      aria-labelledby={`${id}-title`}
+      {...rest}
+    >
+      <h2 id={`${id}-title`} class="txt-sub buybox__title">{title}</h2>
+
+      <ul class="buybox__list">
+        {retailers.map((entry, index) => (
+          <li class="buybox__row">
+            <span class="buybox__retailer">
+              <span class="txt-sub-xs">{entry.name}</span>
+              {entry.note && <span class="txt-label txt-dim buybox__note">{entry.note}</span>}
+            </span>
+            <a
+              class:list={["btn btn--sm", index === 0 ? "btn--buy" : "btn--ghost"]}
+              href={entry.url}
+              rel={affiliate.rel}
+              target="_blank"
+            >
+              {affiliate.ctaLabel}
+              <Icon name="external" size={13} />
+              <span class="sr-only">{` for the ${productName} at ${entry.name} (opens in a new tab)`}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {affiliate.enabled && (
+        <p class="txt-label txt-dim buybox__foot">
+          {affiliate.disclosure} <a href={affiliate.disclosureHref}>How we stay independent</a>.
+        </p>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .buybox {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.35rem;
+  }
+
+  @media (min-width: 48rem) {
+    .buybox {
+      padding: 1.5rem 1.65rem;
+    }
+  }
+
+  .buybox__title {
+    margin: 0;
+  }
+
+  .buybox__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .buybox__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    border-top: 1px solid var(--border);
+    padding-block: 0.8rem;
+  }
+
+  .buybox__row:first-child {
+    border-top: 0;
+    padding-top: 0.25rem;
+  }
+
+  .buybox__retailer {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .buybox__foot {
+    margin: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 0.85rem;
+  }
+
+  .buybox__foot a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

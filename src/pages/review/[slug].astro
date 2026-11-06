@@ -1,0 +1,228 @@
+---
+import { render } from "astro:content";
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import ArticleFooter from "@/components/blocks/ArticleFooter.astro";
+import ArticleHero from "@/components/blocks/ArticleHero.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import SectionHeader from "@/components/blocks/SectionHeader.astro";
+import BuyBox from "@/components/product/BuyBox.astro";
+import SpecTable from "@/components/product/SpecTable.astro";
+import ProsCons from "@/components/review/ProsCons.astro";
+import ScoreBreakdown from "@/components/review/ScoreBreakdown.astro";
+import VerdictPanel from "@/components/review/VerdictPanel.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { siteConfig } from "@/config/site";
+import { SCORE_MAX } from "@/config/scoring";
+import { loadLibrary, type Library } from "@/lib/articles";
+import {
+  articleBylines,
+  categoryHref,
+  relatedArticles,
+  reviewScore,
+  summarize,
+  type Review,
+} from "@/lib/content";
+
+export async function getStaticPaths() {
+  const library = await loadLibrary();
+  return library.reviews.map((review) => ({
+    params: { slug: review.id },
+    props: { review, library },
+  }));
+}
+
+interface Props {
+  review: Review;
+  library: Library;
+}
+
+const { review, library } = Astro.props;
+const { Content } = await render(review);
+
+const data = review.data;
+const product = data.product;
+const summary = summarize(review);
+const score = reviewScore(review);
+/* Only for the structured data — the page itself no longer prints a product shot. */
+const shot = product.image ?? data.cover;
+
+const related = relatedArticles(library.articles, review, 3).map(summarize);
+const url = new URL(summary.href, siteConfig.siteUrl).toString();
+const absoluteImage = new URL(data.cover.src.src, siteConfig.siteUrl).toString();
+
+/**
+ * `Review` structured data, matching what is on the page: the same score, the
+ * same scale, the same byline. Search engines penalise a rating in markup that
+ * a reader cannot find in the text, and rightly so.
+ */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Review",
+  headline: data.title,
+  description: data.excerpt,
+  image: absoluteImage,
+  datePublished: data.date.toISOString(),
+  dateModified: (data.updatedDate ?? data.date).toISOString(),
+  author: articleBylines(review).map((byline) => ({ "@type": "Person", name: byline.name })),
+  publisher: { "@type": "Organization", name: siteConfig.authorName },
+  mainEntityOfPage: url,
+  itemReviewed: {
+    "@type": "Product",
+    name: product.name,
+    brand: { "@type": "Brand", name: product.brand },
+    category: data.category,
+    image: new URL(shot.src.src, siteConfig.siteUrl).toString(),
+  },
+  reviewRating: {
+    "@type": "Rating",
+    ratingValue: score,
+    bestRating: SCORE_MAX,
+    worstRating: 0,
+  },
+  positiveNotes: { "@type": "ItemList", itemListElement: data.pros },
+  negativeNotes: { "@type": "ItemList", itemListElement: data.cons },
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.excerpt}
+  image={absoluteImage}
+  type="article"
+  structuredData={structuredData}
+>
+  <SiteHeader articles={library.articles} />
+
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress__bar" data-reading-progress></div>
+  </div>
+
+  <main id="content">
+    <article data-article>
+      <ArticleHero
+        summary={summary}
+        crumbs={[{ label: data.category, href: categoryHref(data.category) }]}
+      />
+
+      <div class="container-reading review-body">
+        {/* The verdict opens the page: the headline has already named the product. */}
+        <VerdictPanel review={review} score={score} class="review-block" />
+
+        <ProsCons pros={data.pros} cons={data.cons} id="review-proscons" class="review-block" />
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        <ScoreBreakdown scores={data.scores} total={score} class="review-block review-block--top" />
+
+        <SpecTable specs={product.specs} class="review-block" />
+
+        <BuyBox
+          productName={product.name}
+          retailers={product.retailers}
+          title={`Where to buy the ${product.name}`}
+          id="review-buy"
+          class="review-block"
+        />
+
+        <ArticleFooter
+          title={data.title}
+          url={url}
+          tags={data.tags}
+          bylines={articleBylines(review)}
+          updatedDate={data.updatedDate}
+        />
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="container section section-top" aria-labelledby="review-related">
+          <SectionHeader
+            title="Keep reading"
+            href="/reviews/"
+            linkLabel="All reviews"
+            id="review-related"
+          />
+          <div class="grid-cards">
+            {related.map((item) => (
+              <ArticleCard summary={item} showExcerpt />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <NewsletterBand id="review-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <script>
+    const article = document.querySelector("[data-article]");
+    const progress = document.querySelector<HTMLElement>("[data-reading-progress]");
+
+    if (article && progress) {
+      let ticking = false;
+
+      const update = () => {
+        const rect = article.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        const read = total > 0 ? Math.min(Math.max(-rect.top / total, 0), 1) : 0;
+        progress.style.setProperty("--progress", `${(read * 100).toFixed(2)}%`);
+        ticking = false;
+      };
+
+      update();
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(update);
+        },
+        { passive: true },
+      );
+      window.addEventListener("resize", update, { passive: true });
+    }
+  </script>
+
+  <style is:global>
+    .reading-progress {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 250;
+      height: 2px;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .reading-progress__bar {
+      height: 100%;
+      width: var(--progress, 0%);
+      background: var(--accent);
+      transition: width 0.1s linear;
+    }
+  </style>
+
+  <style>
+    .review-body {
+      padding-top: 2rem;
+      padding-bottom: 1rem;
+    }
+
+    .review-block {
+      margin-bottom: 2rem;
+    }
+
+    /* Blocks that follow the prose need the gap above them instead. */
+    .review-block--top {
+      margin-top: 2.5rem;
+    }
+  </style>
+</BaseLayout>

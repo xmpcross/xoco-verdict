@@ -1,0 +1,52 @@
+---
+import type { GetStaticPathsOptions, Page } from "astro";
+import ArchiveLayout from "@/layouts/ArchiveLayout.astro";
+import { loadLibrary } from "@/lib/articles";
+import {
+  categories,
+  categoryMeta,
+  categorySlug,
+  featuredFirst,
+  inCategory,
+  summarize,
+  type Article,
+  type ArticleSummary,
+  type Category,
+} from "@/lib/content";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const library = await loadLibrary();
+
+  return categories.flatMap((category) => {
+    const summaries = featuredFirst(inCategory(library.articles, category)).map(summarize);
+    return paginate(summaries, {
+      params: { category: categorySlug(category) },
+      pageSize: 12,
+      props: { category, articles: library.articles },
+    });
+  });
+}
+
+interface Props {
+  page: Page<ArticleSummary>;
+  category: Category;
+  articles: Article[];
+}
+
+const { page, category, articles } = Astro.props;
+const meta = categoryMeta[category];
+---
+
+<ArchiveLayout
+  title={category}
+  description={meta.description}
+  documentTitle={
+    page.currentPage > 1 ? `${category} — page ${page.currentPage}` : `${category} reviews and guides`
+  }
+  meta={`${page.total} ${page.total === 1 ? "article" : "articles"}`}
+  category={category}
+  articles={articles}
+  page={page}
+  label={`${category} pagination`}
+  emptyMessage={`Nothing published in ${category.toLowerCase()} yet.`}
+/>

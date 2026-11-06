@@ -1,0 +1,80 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import SubscribeForm from "@/components/blocks/SubscribeForm.astro";
+import { siteConfig } from "@/config/site";
+
+/**
+ * The signup band that closes a page. It leads with what the list is for —
+ * price drops and quietly-withdrawn recommendations — rather than with the
+ * word "newsletter", because on a review site the mailing list is a service.
+ */
+interface Props {
+  title?: string;
+  description?: string;
+  id?: string;
+  class?: string;
+}
+
+const {
+  title = siteConfig.newsletter.title,
+  description = siteConfig.newsletter.description,
+  id = "newsletter",
+  class: className = "",
+} = Astro.props;
+---
+
+<section class:list={["container section-top", className]} id={id} aria-labelledby={`${id}-title`}>
+  <div class="ink-block signup">
+    <div class="signup__copy">
+      <p class="txt-eyebrow signup__eyebrow">
+        <Icon name="rss" size={14} />
+        The list
+      </p>
+      <h2 id={`${id}-title`} class="txt-h2 signup__title">{title}</h2>
+      <p class="txt-m txt-dim signup__description">{description}</p>
+    </div>
+    <SubscribeForm id={`${id}-email`} onDark class="signup__form" />
+  </div>
+</section>
+
+<style>
+  .signup {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .signup__copy {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .signup__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgb(255 255 255 / 0.66);
+  }
+
+  .signup__title {
+    max-width: 26ch;
+  }
+
+  .signup__description {
+    max-width: 52ch;
+  }
+
+  @media (min-width: 56rem) {
+    .signup {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+
+    .signup__form {
+      justify-self: end;
+      max-width: 24rem;
+    }
+  }
+</style>

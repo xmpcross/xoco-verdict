@@ -1,0 +1,148 @@
+---
+import type { Page } from "astro";
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import Pagination from "@/components/blocks/Pagination.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { categoryStyle } from "@/config/categories";
+import type { Article, ArticleSummary, Category } from "@/lib/content";
+
+/**
+ * The shared shell behind every paginated listing — the three content-type
+ * archives, category pages, tags, and reviewer pages. One layout means a change
+ * to how archives open, handle empty results, or paginate lands everywhere at
+ * once.
+ *
+ * The heading sits in the same coloured band an article uses. On a category
+ * page it is that category's colour; elsewhere it falls back to the theme's
+ * own accent tint.
+ */
+interface Props {
+  title: string;
+  description?: string;
+  meta?: string;
+  /** Page title override, when it should differ from the visible heading. */
+  documentTitle?: string;
+  /** Paints the band in one category's colour. */
+  category?: Category;
+  /** Everything published, for the header's search palette. */
+  articles: Article[];
+  page: Page<ArticleSummary>;
+  /** Accessible name for the pagination nav. */
+  label: string;
+  noindex?: boolean;
+  emptyMessage?: string;
+}
+
+const {
+  title,
+  description,
+  meta,
+  documentTitle,
+  category,
+  articles,
+  page,
+  label,
+  noindex = false,
+  emptyMessage = "Nothing published here yet.",
+} = Astro.props;
+
+/** The neutral band, for an archive that is not one category's own. */
+const neutralBand = "--cat-from:#e9e4fb;--cat-via:#eeeaf3;--cat-to:#e7eef7";
+---
+
+<BaseLayout
+  title={documentTitle ?? title}
+  description={description}
+  noindex={noindex}
+  prevUrl={page.url.prev}
+  nextUrl={page.url.next}
+>
+  <SiteHeader articles={articles} />
+
+  <main id="content">
+    <header class="cat-band archive-head" style={category ? categoryStyle(category) : neutralBand}>
+      <div class="container archive-head__inner">
+        <h1 class="txt-h1">{title}</h1>
+        {description && <p class="txt-l archive-head__description">{description}</p>}
+        {meta && <p class="txt-eyebrow archive-head__meta">{meta}</p>}
+        <slot name="header" />
+      </div>
+    </header>
+
+    <slot name="before-list" />
+
+    <div class="container section section-top">
+      {
+        page.data.length > 0 ? (
+          <>
+            <div class="grid-cards">
+              {page.data.map((summary, index) => (
+                <ArticleCard
+                  summary={summary}
+                  titleSize="h3"
+                  showExcerpt
+                  showKind
+                  eager={index < 3}
+                />
+              ))}
+            </div>
+            <Pagination
+              prevUrl={page.url.prev}
+              nextUrl={page.url.next}
+              currentPage={page.currentPage}
+              lastPage={page.lastPage}
+              label={label}
+            />
+          </>
+        ) : (
+          <p class="txt-l txt-dim archive-empty">{emptyMessage}</p>
+        )
+      }
+    </div>
+
+    <slot name="after-list" />
+
+    <NewsletterBand id="archive-newsletter" />
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* The band runs up behind the header, which carries no fill of its own until
+     the reader scrolls — so the page opens on one continuous colour. */
+  .archive-head {
+    margin-top: calc(var(--header-height) * -1);
+    padding-top: var(--header-height);
+  }
+
+  .archive-head__inner {
+    display: grid;
+    justify-items: start;
+    gap: 0.65rem;
+    padding-block: 3rem 3.5rem;
+  }
+
+  .archive-head__description {
+    max-width: 46ch;
+    color: color-mix(in srgb, var(--foreground) 76%, transparent);
+  }
+
+  .archive-head__meta {
+    color: color-mix(in srgb, var(--foreground) 62%, transparent);
+  }
+
+  .archive-empty {
+    padding: 3rem 0;
+    text-align: center;
+  }
+
+  @media (min-width: 48rem) {
+    .archive-head__inner {
+      padding-block: 3.25rem 3.75rem;
+    }
+  }
+</style>

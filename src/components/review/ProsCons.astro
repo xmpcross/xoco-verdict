@@ -1,0 +1,56 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+
+/**
+ * Pros and cons, side by side and equally weighted. Each column is a small
+ * table — a label in capitals over a dark rule, then one hairline-separated row
+ * per finding — so the block belongs with the specification and comparison
+ * tables around it. The mark is a pale disc in the column's colour.
+ *
+ * The cons column is never shorter than one item — the schema enforces it —
+ * because a review with nothing bad to say about a product is an advertisement.
+ */
+interface Props {
+  pros: string[];
+  cons: string[];
+  id?: string;
+  class?: string;
+}
+
+const { pros, cons, id = "pros-cons", class: className = "", ...rest } = Astro.props;
+
+const columns = [
+  { label: "Pros", modifier: "pro", icon: "check", items: pros },
+  { label: "Cons", modifier: "con", icon: "close", items: cons },
+] as const;
+---
+
+<section class:list={["proscons", className]} aria-labelledby={`${id}-title`} {...rest}>
+  <h2 id={`${id}-title`} class="sr-only">Pros and cons</h2>
+
+  <div class="judgement">
+    {
+      columns.map((column) => (
+        <div class:list={["judgement__col", `judgement__col--${column.modifier}`]}>
+          <div class="judgement__head">
+            <p id={`${id}-${column.modifier}`} class="txt-eyebrow">
+              {column.label}
+            </p>
+          </div>
+          {/* The list carries the name, not the wrapper: a screen reader then
+              announces "Pros, list, four items" on the way in. */}
+          <ul class="judgement__list" aria-labelledby={`${id}-${column.modifier}`}>
+            {column.items.map((item) => (
+              <li class="judgement__item">
+                <span class="judgement__mark">
+                  <Icon name={column.icon} size={11} />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>

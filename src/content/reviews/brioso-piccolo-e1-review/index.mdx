@@ -1,0 +1,181 @@
+---
+title: "Brioso Piccolo E1 review: café pressure on a 24 cm footprint"
+excerpt: A proper 58 mm group and PID control in the smallest machine Brioso makes. One boiler, though — and you will feel it every time you want milk.
+category: Kitchen
+date: 2026-08-04
+author:
+  name: Sofia Almeida
+  role: Test lead, kitchen
+tags: ["Espresso", "Machines", "Temperature stability"]
+cover:
+  src: ./cover.webp
+  alt: A compact cream and stainless-steel espresso machine on a pale yellow studio plinth
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Piccolo E1
+  brand: Brioso
+  image:
+    src: ./product.jpg
+    alt: Espresso dripping from a bottomless portafilter
+    creditName: Mohamed Shaffaf
+    creditUrl: https://unsplash.com/photos/brown-liquid-in-silver-container-RZJRWMnd0DM
+  retailers:
+    - name: Brioso Direct
+      url: https://example.com/brioso/piccolo-e1
+    - name: Crema Works
+      url: https://example.com/crema/piccolo-e1
+      note: Includes a bottomless portafilter
+  specs:
+    - group: Brewing
+      items:
+        - label: Boiler
+          value: 300 ml brass, single
+        - label: Temperature control
+          value: PID, adjustable in 1 C steps
+        - label: Temperature stability
+          value: Plus or minus 0.4 C over 12 shots
+        - label: Group
+          value: 58 mm, E61-derived
+    - group: Steam and water
+      items:
+        - label: Steam wand
+          value: 2-hole, articulated
+        - label: Time to steam from brew
+          value: 55 seconds measured
+        - label: Water tank
+          value: 2.4 litres, front accessible
+    - group: Physical
+      items:
+        - label: Dimensions
+          value: 240 x 400 x 340 mm
+        - label: Weight
+          value: 14.2 kg
+        - label: Warm-up to stable
+          value: 16 minutes measured
+award: best-overall
+verdict: >-
+  The Piccolo E1 holds brew temperature within 0.4 C across twelve consecutive
+  shots, takes standard 58 mm accessories, and has a published parts diagram. For
+  someone learning espresso properly, that combination at $749 is close to
+  unbeatable. It is also a single-boiler machine with a 55-second wait between
+  brewing and steaming, and no documentation worth reading. Brioso has made a
+  professional's machine and priced it for a beginner without explaining it to one.
+bestFor: You want to learn espresso properly and expect to still own the machine in ten years.
+skipIf: You mostly drink milk drinks for two people, or you want it to work well without reading anything.
+testedFor: seven weeks and about 320 shots
+scores:
+  - label: Temperature stability
+    value: 9.3
+    weight: 2
+    note: Plus or minus 0.4 C over twelve back-to-back shots.
+  - label: Shot quality
+    value: 9
+    weight: 2
+    note: With a decent grinder, extraction is even and repeatable.
+  - label: Steam performance
+    value: 6.4
+    weight: 1.5
+    note: Enough power for one jug. The wait to get there is the problem.
+  - label: Build and serviceability
+    value: 9.5
+    weight: 1.5
+    note: Standard parts, full diagrams, nothing glued.
+  - label: Ease of use
+    value: 5.8
+    weight: 1
+    note: Assumes knowledge it does not supply. The manual is four pages.
+  - label: Footprint and warm-up
+    value: 7.5
+    weight: 1
+    note: 24 cm wide, but 16 minutes from cold to stable.
+pros:
+  - Temperature stability that matches machines at twice the price
+  - Standard 58 mm group takes any basket, tamper, or distributor
+  - Full parts diagram published, and parts sold directly
+  - Genuinely small for what it is
+cons:
+  - Single boiler means a 55-second wait between espresso and steam
+  - Sixteen minutes from cold before the temperature settles
+  - The manual explains almost nothing
+  - No pressure gauge on the group, only on the pump
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+The difference between a machine that makes good espresso and a machine that makes
+the same espresso twice is temperature stability, and it is the specification most
+often quoted and least often measured.
+
+<KeyNumbers
+  items={[
+    { value: "0.4", unit: "C", label: "Temperature swing, 12 shots", note: "Class average: 1.9 C" },
+    { value: "16", unit: "min", label: "Warm-up to stable" },
+    { value: "55", unit: "s", label: "Brew to steam" },
+  ]}
+/>
+
+## Temperature
+
+We log brew water temperature with a thermocouple in a Scace device, pulling twelve
+shots back to back at two-minute intervals after a full warm-up. What we are looking
+for is not the absolute number — that can be dialled in — but the spread.
+
+<TestBench
+  caption="Twelve consecutive 30-second shots at two-minute intervals, Scace device, after 20 minutes of warm-up. Reference is the mean of five single-boiler PID machines between $600 and $900."
+  rows={[
+    { label: "Temperature spread, 12 shots", result: "0.4 C", reference: "1.9 C", better: true },
+    { label: "Shot-to-shot repeatability", result: "0.2 C", reference: "0.9 C", better: true },
+    { label: "Warm-up to stable", result: "16 min", reference: "22 min", better: true },
+    { label: "Recovery after steam", result: "48 s", reference: "71 s", better: true },
+    { label: "Pressure at the group", result: "9.1 bar", reference: "9.4 bar", better: true },
+  ]}
+/>
+
+Four tenths of a degree over twelve shots is a result we would expect from a
+dual-boiler machine at twice the money. It is the single best thing about the
+Piccolo and the reason a beginner will improve faster on it than on almost anything
+else at the price: when a shot tastes different, it is because something you did was
+different.
+
+<Callout tone="method" title="Why we measure at the group and not the boiler">
+  Boiler temperature is easy to stabilise and tells you very little. What the coffee experiences is
+  the water arriving at the puck, after it has passed through a group head that is a large lump of
+  metal with its own thermal behaviour. Every espresso temperature figure on this site is measured
+  at the group.
+</Callout>
+
+## The single-boiler problem
+
+Fifty-five seconds. That is how long the machine takes to go from brew temperature
+to steam temperature, and it is not optional — you pull the shot, press the switch,
+wait, steam, then wait again for it to come back down before the next one.
+
+For one flat white in the morning this is a mild inconvenience. For two people
+wanting milk drinks at the same time it is the defining characteristic of the
+machine, and no amount of temperature stability compensates.
+
+## Living with it
+
+The E1 assumes you already know things. There is no guidance on dose, no starting
+grind recommendation, no explanation of why the first shot after warm-up will be
+different, and the four-page manual spends two of those pages on descaling.
+
+What you get instead is a machine that does not get in the way once you know what
+you are doing: 58 mm standard everything, so any basket, any tamper, any distributor;
+an OPV set correctly at the factory to 9 bar; and a parts diagram that means the
+gasket you will need in three years is a $4 part rather than a service visit.
+
+<Callout tone="tip" title="Two changes worth making immediately">
+  Replace the pressurised basket with a standard one — the machine ships with the pressurised
+  version fitted and it flatters bad grinding at the cost of everything else. Then set the PID to 93
+  C and leave it alone for a fortnight.
+</Callout>
+
+## The verdict
+
+If you are one person who drinks espresso and wants to get properly good at it, this
+is the machine. If you are two people who drink cappuccinos, the wait will wear you
+down long before the temperature stability wins you over.

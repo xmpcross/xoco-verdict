@@ -1,0 +1,109 @@
+---
+title: "Noise cancellation, explained: what the number on the box is not telling you"
+excerpt: Every manufacturer quotes a single decibel figure. It is always their best one, at the frequency they are best at, and it predicts almost nothing about a train.
+category: Audio
+date: 2026-08-13
+author:
+  name: Priya Raghunathan
+  role: Senior reviewer, audio
+tags: ["Headphones", "Noise cancelling", "Methodology"]
+cover:
+  src: ./cover.webp
+  alt: Terracotta portable speaker displayed on a cream pedestal against a pale peach backdrop
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+keyTakeaways:
+  - Cancellation is a filter with a shape, and one number describes a single point on it.
+  - Low frequencies are the hard part and the part that matters on transport.
+  - Passive isolation does most of the work above about 2 kHz, so the seal matters more than the electronics.
+  - A system that changes the tuning when you switch it on is a system you cannot monitor with.
+  - Wind noise is a separate problem that no current system solves well.
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+
+A pair of headphones advertising "up to 40 dB of noise cancellation" is telling you
+one true thing about one frequency and letting you assume it applies to all of them.
+It does not, and the difference between the assumption and the reality is the
+difference between a quiet train and a slightly muffled one.
+
+## Cancellation is a filter with a shape
+
+An active system works by measuring incoming sound with a microphone and playing the
+inverse of it. That process has a shape: it works well over a certain range of
+frequencies and poorly outside it, because the maths gets harder as the wavelength
+gets shorter.
+
+Plot attenuation against frequency for any pair of cancelling headphones and you get
+a curve, not a line. The manufacturer's headline number is the highest point on that
+curve.
+
+<KeyNumbers
+  items={[
+    { value: "31.4", unit: "dB", label: "Atlas II at 100 Hz", note: "Where rail rumble sits" },
+    { value: "19.2", unit: "dB", label: "Atlas II at 4 kHz", note: "Where voices sit" },
+    { value: "12.2", unit: "dB", label: "The gap between them" },
+  ]}
+/>
+
+Twelve decibels is not a rounding error. It is roughly a four-fold difference in
+perceived loudness, from the same pair of headphones, depending on what noise you
+are sitting in.
+
+## The low end is the hard part, and the important part
+
+Engine and rail rumble is concentrated below about 200 Hz. So is road noise, air
+conditioning, and most of what makes an aircraft cabin exhausting.
+
+It is also the region where a cheap cancellation system falls apart, because low
+frequencies have long wavelengths and the microphone-to-driver timing has to be
+right over a bigger physical distance. This is why we quote every figure at 100 Hz
+first, and why a headphone that is excellent at 1 kHz and mediocre at 100 Hz is
+mediocre on a commute.
+
+<Callout tone="method" title="Where our figures come from">
+  A head-and-torso simulator in a sealed room, pink noise at a calibrated level, and three runs with
+  the pads or tips reseated between each. Reseating matters: a poor seal can cost 6 dB at 100 Hz,
+  which is larger than the difference between most competing products.
+</Callout>
+
+## Above 2 kHz, the electronics stop mattering
+
+High frequencies are attenuated mostly by physics — the mass of the earcup and the
+quality of the seal — rather than by processing.
+
+That has a practical consequence. If the noise you want to escape is an open-plan
+office, where the problem is speech at 500 Hz to 4 kHz, an expensive cancelling
+headphone will not help much more than a well-sealed passive one. If the noise is a
+train, it will help enormously. Buy for your noise, not for the number.
+
+## The test nobody runs: does it change the sound?
+
+A cancellation system is inside the signal path, and a badly implemented one alters
+the frequency response when you switch it on — usually by adding bass, because that
+flatters the demo.
+
+We measure the response with cancellation on and off and publish the difference. The
+Atlas II shifts by 0.6 dB, which is inaudible. The class average is 2.4 dB, which is
+not. A headphone that changes its tuning depending on a button is a headphone you
+cannot use for anything where accuracy matters.
+
+## Wind
+
+No current system handles it. The microphones that measure the incoming noise are
+also measuring turbulence across their own ports, and the result is a roar that the
+system then tries to cancel and cannot.
+
+Every pair we have tested has this problem above about 15 km/h of apparent wind.
+Some have a wind-reduction mode, which works by turning the cancellation down. That
+is not a criticism of any particular product; it is the state of the art.
+
+## What to ask instead
+
+- At what frequency is that decibel figure measured?
+- What is the attenuation at 100 Hz?
+- Does the frequency response change when cancellation is switched on?
+- Are the earpads replaceable, given the seal does half the work?
+
+Any manufacturer that can answer the first two has done the measurement. Most cannot.

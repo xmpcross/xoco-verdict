@@ -1,0 +1,187 @@
+---
+title: "Lumenar Vista R7 review: autofocus that finally keeps up"
+excerpt: Fifteen years of Lumenar owners have complained about one thing. The R7 fixes it, and changes almost nothing else.
+category: Cameras
+date: 2026-08-07
+author:
+  name: Dana Whitlock
+  role: Editor-in-chief
+tags: ["Mirrorless", "Autofocus", "Full frame"]
+cover:
+  src: ./cover.webp
+  alt: A black mirrorless camera and prime lens on a pale stone studio plinth
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Vista R7
+  brand: Lumenar
+  image:
+    src: ./product.jpg
+    alt: A camera with a lens attached and two spare lenses on a dark surface
+    creditName: Conor Luddy
+    creditUrl: https://unsplash.com/photos/flat-lay-photography-of-black-sony-dslr-camera-on-black-surface-IVaKksEZmZA
+  retailers:
+    - name: Lumenar Store
+      url: https://example.com/lumenar/vista-r7
+    - name: Aperture Supply
+      url: https://example.com/aperture/vista-r7
+      note: Body only
+  specs:
+    - group: Sensor
+      items:
+        - label: Sensor
+          value: 33 MP full-frame BSI CMOS
+        - label: ISO range
+          value: 100 to 51200
+        - label: Dynamic range, measured
+          value: 14.1 stops at ISO 100
+        - label: Stabilisation
+          value: 5-axis, 7.5 stops rated
+    - group: Autofocus and speed
+      items:
+        - label: AF points
+          value: 759 phase-detect
+        - label: Keeper rate, erratic subject
+          value: 91% over 2,000 frames
+        - label: Burst
+          value: 12 fps mechanical, 30 fps electronic
+    - group: Body
+      items:
+        - label: Weight, with battery
+          value: 658 g
+        - label: Card slots
+          value: CFexpress B and SD UHS-II
+        - label: Weather sealing
+          value: IP53, verified in testing
+        - label: Battery
+          value: 580 shots CIPA, 1,100 in practice
+award: best-upgrade
+featured: true
+verdict: >-
+  The R7 is a deliberately boring camera with one extraordinary component. The
+  sensor is a mild update, the body is the same body, the menus have not moved.
+  The autofocus system has gone from the weakest part of the Lumenar proposition
+  to the strongest part of any camera at this price, taking the keeper rate on
+  erratic subjects from 62% to 91%. If that number describes your problem, nothing
+  else on this page matters.
+bestFor: You shoot moving subjects and already own Lumenar glass, or you are buying into a mount rather than a body.
+skipIf: You shoot landscapes and still lifes, where the R6 does the same job for considerably less.
+testedFor: five weeks and around 6,400 frames
+scores:
+  - label: Autofocus
+    value: 9.7
+    weight: 2.5
+    note: 91% keeper rate on erratic subjects across 2,000 frames.
+  - label: Image quality
+    value: 8.9
+    weight: 2
+    note: 14.1 stops of dynamic range at base ISO, clean to ISO 6400.
+  - label: Handling
+    value: 9
+    weight: 1.5
+    note: Deep grip, well-placed dials, and a menu system nobody has to relearn.
+  - label: Video
+    value: 7.4
+    weight: 1
+    note: Competent 4K, but a 6-minute overheat limit at 60p in a warm room.
+  - label: Build and sealing
+    value: 9.2
+    weight: 1
+    note: IP53 rated and verified. Two hours in light rain, no ingress.
+  - label: Value
+    value: 7.8
+    weight: 1
+    note: The improvement is real, and so is the price of it.
+pros:
+  - Autofocus is a generational change, not an increment
+  - Same mount as every Lumenar body since 2009
+  - Weather sealing that survives actual weather
+  - 1,100 real-world frames per charge, against a 580 CIPA rating
+cons:
+  - Overheats in 4K/60 after about six minutes above 25 C
+  - Sensor is a modest update on a three-year-old design
+  - Launch stock has been thin and prices have not moved
+  - Rear screen resolution is unchanged since 2021
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+Lumenar has spent fifteen years being the company whose lenses everyone admires and
+whose autofocus everyone works around. Photographers bought the system for the glass
+and learned to pre-focus, back-button, and hope.
+
+<KeyNumbers
+  items={[
+    { value: "91", unit: "%", label: "Keeper rate, erratic subject", note: "R6: 62%" },
+    { value: "14.1", unit: "stops", label: "Dynamic range at ISO 100" },
+    { value: "1,100", label: "Frames per charge in practice", note: "CIPA rating: 580" },
+  ]}
+/>
+
+## The autofocus test
+
+We shoot a fixed protocol: a subject moving unpredictably towards and across the
+frame at between 8 and 20 km/h, 2,000 frames per body, same lens, same light, same
+distance. A frame counts as a keeper if the intended eye is within the depth of
+field at 100% magnification. It is a harsh test and it is the one that separates
+marketing from behaviour.
+
+<TestBench
+  caption="2,000 frames per body, Prime 35mm at f/1.8, 800 lux, subject moving unpredictably between 8 and 20 km/h. Reference is the R6 shot in the same session."
+  rows={[
+    { label: "Keeper rate, erratic subject", result: "91%", reference: "62%", better: true },
+    { label: "Keeper rate, linear approach", result: "97%", reference: "88%", better: true },
+    { label: "Acquisition time, cold start", result: "0.09 s", reference: "0.21 s", better: true },
+    { label: "Eye detection at 15 m", result: "Reliable", reference: "Intermittent", better: true },
+    { label: "Low light limit", result: "-6 EV", reference: "-4 EV", better: true },
+  ]}
+/>
+
+Ninety-one per cent is not merely better than the R6, it is better than anything
+else we have run this protocol against. The system also fails more gracefully: when
+it misses, it misses by a small amount and recovers on the next frame, rather than
+racking to infinity and coming back.
+
+<Callout tone="method" title="Why the keeper rate and not the AF point count">
+  A camera with 759 phase-detect points and poor prediction will lose to a camera with half as many
+  and good prediction, every time. Point counts are a specification; keeper rate is an outcome. We
+  only publish the outcome.
+</Callout>
+
+## Everything else
+
+The sensor is a 33-megapixel update on a design first seen in 2023, and it performs
+like one: 14.1 stops at base ISO, useful files to ISO 6400, and a highlight roll-off
+that photographers coming from the R6 will recognise immediately. This is fine. It
+is not the reason to buy the camera.
+
+The body is unchanged in every way that matters, which after five weeks reads as a
+feature. The grip is still deep enough for a gloved hand, the front and rear dials
+are still where your fingers expect them, and the menus have not been reorganised
+for the sake of it.
+
+## The video caveat
+
+4K/30 is unrestricted and good. 4K/60 shut down after six minutes and forty seconds
+in a 26 C room, and after eleven minutes at 19 C. Lumenar does not publish a limit
+and the camera gives no warning before it stops.
+
+<Callout tone="caution" title="Do not buy this as a hybrid body">
+  If video is more than an occasional secondary use, the overheat behaviour makes the R7 unreliable
+  in exactly the conditions where you would want 60p. We have asked Lumenar whether a firmware
+  change is planned and had no answer.
+</Callout>
+
+## Against the R6
+
+If you photograph things that hold still, the R6 is 40% cheaper and produces files
+you will struggle to distinguish. If you photograph things that move, the R7 is a
+different camera, and the gap is the largest single-generation improvement we have
+measured in this category.
+
+## The verdict
+
+A narrow, excellent upgrade. Buy it for the autofocus, keep your lenses, and shoot
+video on something else.

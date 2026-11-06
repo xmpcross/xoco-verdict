@@ -1,0 +1,93 @@
+---
+/**
+ * An aside inside article prose. Import it at the top of an `.mdx` file:
+ *
+ *   import Callout from "@/components/mdx/Callout.astro";
+ *
+ *   <Callout tone="caution" title="Firmware matters">
+ *     Everything below was measured on 2.4.1. The 2.3 release clipped bass.
+ *   </Callout>
+ *
+ * A rule and a coloured label rather than a filled box — inside a reading
+ * column, a tinted panel every few paragraphs is what makes a page look
+ * automated.
+ */
+interface Props {
+  /**
+   * `note`    neutral context
+   * `tip`     an actionable shortcut
+   * `caution` a caveat that changes the recommendation
+   * `method`  how a number in the paragraph above was produced
+   */
+  tone?: "note" | "tip" | "caution" | "method";
+  title?: string;
+  class?: string;
+}
+
+const { tone = "note", title, class: className = "", ...rest } = Astro.props;
+
+const labels: Record<NonNullable<Props["tone"]>, string> = {
+  note: "Note",
+  tip: "Tip",
+  caution: "Watch out",
+  method: "How we measured it",
+};
+---
+
+<aside class:list={["callout", `callout--${tone}`, className]} {...rest}>
+  <p class="txt-sub-xs callout__head">{title ?? labels[tone]}</p>
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    display: grid;
+    gap: 0.35rem;
+    border-left: 2px solid var(--callout-ink);
+    padding: 0.15rem 0 0.15rem 1.35rem;
+    font-size: var(--fs-m);
+    line-height: 1.65;
+  }
+
+  .callout__head {
+    color: var(--callout-ink);
+  }
+
+  .callout__body :global(> :first-child) {
+    margin-top: 0;
+  }
+
+  .callout__body :global(> :last-child) {
+    margin-bottom: 0;
+  }
+
+  .callout__body :global(p) {
+    margin: 0;
+  }
+
+  .callout__body :global(p + p) {
+    margin-top: 0.65rem;
+  }
+
+  .callout--note {
+    --callout-ink: var(--accent);
+  }
+
+  .callout--tip {
+    --callout-ink: var(--pro);
+  }
+
+  .callout--caution {
+    --callout-ink: var(--award);
+  }
+
+  .callout--method {
+    --callout-ink: var(--border-strong);
+  }
+
+  .callout--method .callout__head {
+    color: var(--muted-foreground);
+  }
+</style>

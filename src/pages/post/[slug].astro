@@ -1,0 +1,177 @@
+---
+import { render } from "astro:content";
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import ArticleFooter from "@/components/blocks/ArticleFooter.astro";
+import ArticleHero from "@/components/blocks/ArticleHero.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import SectionHeader from "@/components/blocks/SectionHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { siteConfig } from "@/config/site";
+import { loadLibrary, type Library } from "@/lib/articles";
+import {
+  articleBylines,
+  categoryHref,
+  relatedArticles,
+  summarize,
+  type Post,
+} from "@/lib/content";
+
+export async function getStaticPaths() {
+  const library = await loadLibrary();
+  return library.posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, library },
+  }));
+}
+
+interface Props {
+  post: Post;
+  library: Library;
+}
+
+const { post, library } = Astro.props;
+const { Content } = await render(post);
+
+const data = post.data;
+const summary = summarize(post);
+const related = relatedArticles(library.articles, post, 3).map(summarize);
+
+const url = new URL(summary.href, siteConfig.siteUrl).toString();
+const absoluteImage = new URL(data.cover.src.src, siteConfig.siteUrl).toString();
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: data.title,
+  description: data.excerpt,
+  image: absoluteImage,
+  datePublished: data.date.toISOString(),
+  dateModified: (data.updatedDate ?? data.date).toISOString(),
+  author: articleBylines(post).map((byline) => ({ "@type": "Person", name: byline.name })),
+  publisher: { "@type": "Organization", name: siteConfig.authorName },
+  mainEntityOfPage: url,
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.excerpt}
+  image={absoluteImage}
+  type="article"
+  structuredData={structuredData}
+>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <article>
+      <ArticleHero
+        summary={summary}
+        crumbs={[{ label: data.category, href: categoryHref(data.category) }]}
+      />
+
+      <div class="container-reading post-body">
+        {/* Numbered, and nothing else: no box, no rules, no ticks. A takeaway
+            is a claim the guide is making, so it is set at reading size with a
+            figure beside it — three of these is a summary a reader can hold,
+            which a bulleted list of the same words is not. */}
+        {
+          data.keyTakeaways.length > 0 && (
+            <section class="panel takeaways" aria-labelledby="takeaways-title">
+              <div class="panel__body">
+                <h2 id="takeaways-title" class="txt-eyebrow takeaways__label">
+                  The short version
+                </h2>
+                <ul class="takeaways__list">
+                  {data.keyTakeaways.map((point) => (
+                    <li class="takeaways__item">{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )
+        }
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        <ArticleFooter
+          title={data.title}
+          url={url}
+          tags={data.tags}
+          bylines={articleBylines(post)}
+          updatedDate={data.updatedDate}
+        />
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="container section section-top" aria-labelledby="post-related">
+          <SectionHeader title="Keep reading" href="/blog/" linkLabel="All guides" id="post-related" />
+          <div class="grid-cards">
+            {related.map((item) => (
+              <ArticleCard summary={item} showExcerpt />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <NewsletterBand id="post-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .post-body {
+      padding-top: 2rem;
+    }
+
+    /* A box again, but the theme's kind: a hairline on the page's own white,
+       which is what `.panel` draws. */
+    .takeaways {
+      margin-bottom: 2.75rem;
+    }
+
+    .takeaways__label {
+      margin-bottom: 1.1rem;
+      color: var(--muted-foreground);
+    }
+
+    .takeaways__list {
+      display: grid;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: takeaway;
+    }
+
+    .takeaways__item {
+      display: grid;
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: baseline;
+      font-size: var(--fs-l);
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    /* The figure is the whole ornament. It comes from a counter rather than the
+       markup, so a takeaway is never numbered twice for a screen reader. */
+    .takeaways__item::before {
+      content: counter(takeaway, decimal-leading-zero);
+      counter-increment: takeaway;
+      color: var(--n-500);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+  </style>
+</BaseLayout>

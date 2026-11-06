@@ -1,0 +1,117 @@
+---
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { authorProfile, type AuthorProfile } from "@/config/authors";
+import { loadLibrary, reviewerIndex } from "@/lib/articles";
+import { articleScore, authorSlug, kindOf, summarize, type Article, type ArticleSummary } from "@/lib/content";
+
+export async function getStaticPaths() {
+  const library = await loadLibrary();
+
+  return reviewerIndex(library.articles).map((reviewer) => {
+    const scores = reviewer.articles
+      .map((article) => articleScore(article))
+      .filter((score) => score !== undefined);
+
+    return {
+      params: { author: authorSlug(reviewer.name) },
+      props: {
+        name: reviewer.name,
+        role: reviewer.role,
+        profile: authorProfile(reviewer.name),
+        articles: library.articles,
+        written: reviewer.articles.map(summarize),
+        reviewCount: reviewer.articles.filter((article) => kindOf(article) === "review").length,
+        averageScore:
+          scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : undefined,
+      },
+    };
+  });
+}
+
+interface Props {
+  name: string;
+  role: string;
+  profile?: AuthorProfile;
+  articles: Article[];
+  written: ArticleSummary[];
+  reviewCount: number;
+  averageScore?: number;
+}
+
+const { name, role, profile, articles, written, reviewCount, averageScore } = Astro.props;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name,
+  jobTitle: role,
+  ...(profile?.bio ? { description: profile.bio } : {}),
+};
+---
+
+<BaseLayout
+  title={name}
+  description={profile?.bio ?? `Reviews and buying guides by ${name}, ${role}.`}
+  structuredData={structuredData}
+>
+  <SiteHeader articles={articles} />
+
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title={name}
+        description={profile?.bio ?? role}
+        meta={[
+          `${written.length} articles`,
+          `${reviewCount} reviews`,
+          averageScore !== undefined ? `Average score awarded ${averageScore.toFixed(1)}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      >
+        <div class="author-head">
+          <Avatar name={name} size="xl" />
+          {
+            profile?.beats && profile.beats.length > 0 && (
+              <p class="chip-row author-head__beats">
+                {profile.beats.map((beat) => (
+                  <span class="chip">{beat}</span>
+                ))}
+              </p>
+            )
+          }
+        </div>
+      </PageHeader>
+    </div>
+
+    <section class="container section section-top" aria-label={`Articles by ${name}`}>
+      <div class="grid-cards">
+        {written.map((summary, index) => <ArticleCard summary={summary} showExcerpt eager={index < 3} />)}
+      </div>
+    </section>
+
+    <NewsletterBand id="author-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .author-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .author-head__beats {
+      margin: 0;
+    }
+  </style>
+</BaseLayout>

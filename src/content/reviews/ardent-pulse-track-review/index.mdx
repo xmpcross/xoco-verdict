@@ -1,0 +1,175 @@
+---
+title: "Ardent Pulse Track review: the most accurate GPS we have measured, wrapped in mediocrity"
+excerpt: 1.4 metres of drift on a measured track is a category-leading number. Everything built around that chipset is average, and the app is worse.
+category: Fitness
+date: 2026-07-21
+author:
+  name: Nils Halvorsen
+  role: Reviewer, fitness and wearables
+tags: ["Watches", "GPS", "Heart rate"]
+cover:
+  src: ./cover.webp
+  alt: A charcoal GPS watch with a dark-green strap on a cream studio plinth
+  creditName: Verdict Studio
+  creditUrl: https://verdict.xocoweb.workers.dev/
+product:
+  name: Pulse Track
+  brand: Ardent
+  image:
+    src: ./product.jpg
+    alt: A black smartwatch resting on dark fabric
+    creditName: Indra Projects
+    creditUrl: https://unsplash.com/photos/a-close-up-of-a-watch-on-a-table-XqCPROiO7Fw
+  retailers:
+    - name: Ardent Store
+      url: https://example.com/ardent/pulse-track
+    - name: Pace Outfitters
+      url: https://example.com/pace/pulse-track
+  specs:
+    - group: Positioning
+      items:
+        - label: Constellations
+          value: GPS, Galileo, BeiDou, QZSS
+        - label: Bands
+          value: L1 and L5 multi-band
+        - label: Track drift, measured
+          value: 1.4 m average over 25 laps
+    - group: Sensors
+      items:
+        - label: Heart rate
+          value: Optical, 5 LED
+        - label: Interval lag vs chest strap
+          value: 9 seconds
+        - label: Other
+          value: Barometric altimeter, compass
+    - group: Battery and build
+      items:
+        - label: Battery, multi-band GPS
+          value: 26 hours measured
+        - label: Battery, watch mode
+          value: 11 days measured
+        - label: Weight
+          value: 47 g with strap
+        - label: Water resistance
+          value: 10 ATM
+verdict: >-
+  Ardent bought a positioning company in 2023 and the Pulse Track is what that
+  purchase bought: 1.4 metres of average drift over 25 track laps, which is the best
+  figure we have recorded at any price. Everything else is unremarkable. The optical
+  heart rate lags a chest strap by nine seconds on intervals, the battery is
+  mid-pack, and the app requires an account and deletes your history if you close
+  it. If GPS accuracy is your problem, this solves it. If it is not, this is a $399
+  watch doing $250 of work.
+bestFor: You run trails, cities, or anywhere with unreliable signal, and route accuracy actually changes your training.
+skipIf: You do interval work off wrist heart rate, or you want a watch that also behaves like a smartwatch.
+testedFor: seven weeks, 240 miles, and 25 measured track laps
+scores:
+  - label: GPS accuracy
+    value: 9.8
+    weight: 2.5
+    note: 1.4 m average drift on a measured 400 m track over 25 laps.
+  - label: Heart rate
+    value: 6
+    weight: 2
+    note: Excellent at steady state, nine seconds behind on intervals.
+  - label: Battery
+    value: 7.5
+    weight: 1.5
+    note: 26 hours of multi-band GPS, 11 days in watch mode. Mid-pack.
+  - label: Software and app
+    value: 5.2
+    weight: 1.5
+    note: Account required, history stored server-side, exports are a paid tier.
+  - label: Build and comfort
+    value: 8
+    weight: 1
+    note: 47 g, comfortable, and the screen survived a wall.
+  - label: Value
+    value: 6.5
+    weight: 1
+    note: One outstanding component in an otherwise ordinary product.
+pros:
+  - Best GPS accuracy we have measured, by a wide margin
+  - Multi-band positioning holds up in cities and under tree cover
+  - 10 ATM rating and a screen that has taken a knock without marking
+  - Physical buttons that work with wet or gloved hands
+cons:
+  - Optical heart rate is nine seconds behind a chest strap on intervals
+  - The app requires an account and does not store data locally
+  - Data export is behind a subscription
+  - No offline maps at this price
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+Almost every GPS watch is accurate enough on an open road. The differences appear
+where the signal does not: between buildings, under trees, and on a track, where the
+true distance is known to the centimetre and the watch has nowhere to hide.
+
+<KeyNumbers
+  items={[
+    { value: "1.4", unit: "m", label: "Average drift, 400 m track", note: "Class average: 6.2 m" },
+    { value: "9", unit: "s", label: "Heart rate lag on intervals" },
+    { value: "26", unit: "h", label: "Multi-band GPS battery" },
+  ]}
+/>
+
+## The track test
+
+Twenty-five laps of a certified 400 m track in lane one, watch on the left wrist,
+compared against the known distance. Then the same watch through a city loop with
+tall buildings on both sides, and a wooded trail section under full canopy.
+
+<TestBench
+  caption="25 laps of a certified 400 m track, plus 5 km urban and 5 km wooded loops, repeated three times. Reference is the mean of five multi-band watches between $350 and $600."
+  rows={[
+    { label: "Track drift, average", result: "1.4 m", reference: "6.2 m", better: true },
+    { label: "Track distance error", result: "0.3%", reference: "1.4%", better: true },
+    { label: "Urban drift, average", result: "3.8 m", reference: "11.9 m", better: true },
+    { label: "Wooded drift, average", result: "4.1 m", reference: "9.7 m", better: true },
+    { label: "Time to first fix", result: "4 s", reference: "9 s", better: true },
+  ]}
+/>
+
+These are the best positioning numbers we have recorded, and not marginally. A 0.3%
+distance error over a session means a marathon measured to within 130 metres, which
+is inside the variation caused by your own running line.
+
+## Heart rate, which is the other half of a running watch
+
+Steady state is fine — within 2 bpm of a chest strap for the whole of a 45-minute
+easy run. Intervals are not. On 400 m repeats the optical sensor takes about nine
+seconds to catch a rise and about the same to catch the fall, which means the number
+on your wrist describes the previous repetition.
+
+<Callout tone="caution" title="Pair a chest strap if you train by heart rate">
+  Nine seconds of lag is enough to make interval pacing by wrist heart rate actively misleading. The
+  watch pairs with any ANT+ or Bluetooth strap and the accuracy problem disappears entirely, but
+  that is another $60 and another thing to charge.
+</Callout>
+
+## The app
+
+Ardent requires an account before the watch will finish setup. Activity history is
+stored on Ardent's servers rather than on the phone; deleting the app removes local
+access to everything. Exporting your own data in a standard format is part of a
+$4.99 monthly tier.
+
+We would score this harshly on any product. On a $399 one it is difficult to
+justify, and it is the single reason we cannot recommend the Pulse Track to someone
+who is not specifically buying it for the positioning.
+
+## Battery and build
+
+Twenty-six hours with multi-band GPS active, eleven days as a watch. Both are
+mid-pack and both matched the claims. At 47 g with the supplied strap it disappears
+on the wrist, and after seven weeks including one hard contact with a doorframe the
+screen is unmarked.
+
+## The verdict
+
+A specialist instrument sold as a general-purpose watch. If you run where GPS
+struggles, nothing else comes close. If you do not, you are paying $399 for a
+chipset you will never notice and an app you will resent.

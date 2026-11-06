@@ -1,0 +1,259 @@
+---
+import { Image } from "astro:assets";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import AwardBadge from "@/components/ui/AwardBadge.astro";
+import Icon from "@/components/ui/Icon.astro";
+import { scoreBandFor } from "@/config/scoring";
+import { articleHref, categoryHref, reviewScore, type Review } from "@/lib/content";
+
+/**
+ * The front page opener: one review, its cover run full width and nearly full
+ * height, with the verdict laid over it.
+ *
+ * This is the only place in the theme where type sits on a photograph, and it
+ * is why the scrim below is heavier than it looks like it needs to be — a cover
+ * is whatever the reviewer shot, and the headline has to hold up over a pale
+ * product on a white table as well as over a dark one.
+ */
+interface Props {
+  review: Review;
+  class?: string;
+}
+
+const { review, class: className = "", ...rest } = Astro.props;
+
+const data = review.data;
+const product = data.product;
+const score = reviewScore(review);
+const band = scoreBandFor(score);
+const shot = data.cover;
+---
+
+<section
+  class:list={["fhero", className]}
+  style={`--tone: var(--score-${band.tone})`}
+  aria-labelledby="fhero-title"
+  {...rest}
+>
+  <div class="fhero__media">
+    {/*
+      The frame is the whole fold, so on a phone it is portrait and a landscape
+      cover has to be scaled until its height fits: roughly twice the viewport
+      width. `sizes` asks for that on narrow screens — understating it here is
+      what makes a full-bleed hero look soft on exactly the devices most readers
+      arrive on.
+    */}
+    <Image
+      src={shot.src}
+      alt=""
+      widths={[720, 1080, 1440, 1920]}
+      sizes="(max-width: 48rem) 190vw, 100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </div>
+
+  <div class="container fhero__inner">
+    <p class="fhero__kicker">
+      <a class="txt-eyebrow fhero__category" href={categoryHref(data.category)}>{data.category}</a>
+      {data.award && <AwardBadge award={data.award} />}
+    </p>
+
+    <h2 id="fhero-title" class="fhero__title">
+      <a href={articleHref(review)}>{data.title}</a>
+    </h2>
+
+    {/* Verdict and call to action share one rule: on a wide screen the score
+        sits at the left of it and the button at the right, so the foot of the
+        picture reads as a single line rather than as a stack of overlays. */}
+    <div class="fhero__foot">
+      <div class="fhero__verdict">
+        <ScoreBadge score={score} size="md" />
+        <div class="fhero__band">
+          <p class="txt-eyebrow fhero__band-eyebrow">{band.label}</p>
+          <p class="fhero__product">{product.brand} {product.name}</p>
+        </div>
+      </div>
+
+      <a class="btn fhero__cta" href={articleHref(review)}>
+        Read the full review
+        <Icon name="arrow-right" size={14} />
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The whole fold, full bleed. The opener is a picture first, and a picture
+     that stops short of the fold reads as a banner. */
+  .fhero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: 100svh;
+    isolation: isolate;
+    background: var(--n-900);
+    color: #ffffff;
+  }
+
+  .fhero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* Clips the cover's settle-in scale (see the Motion section of global.css). */
+    overflow: hidden;
+  }
+
+  .fhero__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /*
+   * Three gradients rather than one: a strong one rising from the foot where
+   * the type sits, a wash from the left so a bright cover cannot swallow the
+   * headline, and a short one at the top for the white header that rides over
+   * the picture on the front page.
+   */
+  .fhero__media::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background:
+      linear-gradient(
+        0deg,
+        rgb(8 8 10 / 0.86) 0%,
+        rgb(8 8 10 / 0.58) 34%,
+        rgb(8 8 10 / 0.14) 66%,
+        rgb(8 8 10 / 0.03) 100%
+      ),
+      linear-gradient(90deg, rgb(8 8 10 / 0.34) 0%, rgb(8 8 10 / 0) 72%),
+      linear-gradient(180deg, rgb(8 8 10 / 0.4) 0%, rgb(8 8 10 / 0) 18%);
+  }
+
+  .fhero__inner {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+    max-width: calc(var(--container) + var(--gutter) * 2);
+    padding-block: 3rem 2.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .fhero__inner {
+      gap: 1.75rem;
+      padding-block: 4.5rem 3.25rem;
+    }
+  }
+
+  .fhero__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  /* The category keeps its own hue off the band here — over a photograph the
+     pale inks disappear, so it is set in white. */
+  .fhero__category {
+    color: #ffffff;
+  }
+
+  .fhero__category:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  /*
+   * The headline gets two thirds of the track rather than a character count:
+   * measured in `ch` a geometric face this large wraps into a narrow stack of
+   * five short lines, which is what makes a hero look cluttered.
+   */
+  .fhero__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5.4vw, 4.5rem);
+    font-weight: var(--weight-title);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 64rem) {
+    .fhero__title {
+      max-width: 74%;
+    }
+  }
+
+  .fhero__title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.08em;
+    text-decoration-thickness: 3px;
+  }
+
+  .fhero__foot {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+    border-top: 1px solid rgb(255 255 255 / 0.28);
+    padding-top: 1.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .fhero__foot {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 2rem;
+    }
+  }
+
+  .fhero__verdict {
+    display: flex;
+    align-items: center;
+    gap: 1.15rem;
+    min-width: 0;
+  }
+
+  .fhero__band {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  /* On the photograph the band name is set in white rather than in its own
+     colour — the badge beside it is already carrying the hue. */
+  .fhero__band-eyebrow {
+    color: #ffffff;
+  }
+
+  .fhero__product {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-h4);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: rgb(255 255 255 / 0.82);
+  }
+
+  .fhero__cta {
+    border-color: #ffffff;
+    background: #ffffff;
+    color: var(--n-950);
+  }
+
+  @media (min-width: 48rem) {
+    .fhero__cta {
+      justify-self: end;
+    }
+  }
+
+  .fhero__cta:hover {
+    border-color: #ffffff;
+    background: transparent;
+    color: #ffffff;
+  }
+</style>

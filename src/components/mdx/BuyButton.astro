@@ -1,0 +1,84 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+import { siteConfig } from "@/config/site";
+
+/**
+ * A single retailer call to action, for the middle of a post. It carries the
+ * site's affiliate `rel` and, when the disclosure is switched on, prints it
+ * beside the button rather than leaving it to the page footer.
+ *
+ *   <BuyButton
+ *     name="Northbeam Atlas II"
+ *     retailer="Northbeam Direct"
+ *     url="https://example.com/northbeam/atlas-2"
+ *   />
+ */
+interface Props {
+  name: string;
+  url: string;
+  retailer?: string;
+  /** A short line under the name: "Our pick for open offices". */
+  note?: string;
+  /** Hides the inline disclosure where the page already carries one nearby. */
+  showDisclosure?: boolean;
+  class?: string;
+}
+
+const {
+  name,
+  url,
+  retailer,
+  note,
+  showDisclosure = true,
+  class: className = "",
+  ...rest
+} = Astro.props;
+---
+
+<div class:list={["buybtn", className]} {...rest}>
+  <div class="buybtn__copy">
+    <p class="txt-sub">{name}</p>
+    {note && <p class="txt-label txt-dim">{note}</p>}
+  </div>
+  <a class="btn btn--buy" href={url} rel={siteConfig.affiliate.rel} target="_blank">
+    {retailer ? `${siteConfig.affiliate.ctaLabel} at ${retailer}` : siteConfig.affiliate.ctaLabel}
+    <Icon name="external" size={13} />
+    <span class="sr-only"> (opens in a new tab)</span>
+  </a>
+  {
+    showDisclosure && siteConfig.affiliate.enabled && (
+      <p class="buybtn__note txt-label txt-dim">{siteConfig.affiliate.disclosure}</p>
+    )
+  }
+</div>
+
+<style>
+  .buybtn {
+    display: grid;
+    gap: 0.85rem;
+    align-items: center;
+    margin: 2rem 0;
+    border-block: 1px solid var(--border);
+    padding-block: 1.35rem;
+  }
+
+  .buybtn__copy {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .buybtn__note {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 40rem) {
+    .buybtn {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .buybtn .btn {
+      justify-self: end;
+    }
+  }
+</style>

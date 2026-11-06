@@ -1,0 +1,309 @@
+---
+import { Image } from "astro:assets";
+import ArticleMeta from "@/components/ui/ArticleMeta.astro";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import { categoryStyle } from "@/config/categories";
+import { cardSizes } from "@/lib/imageSizes";
+import { categoryHref, kindMeta, type ArticleSummary } from "@/lib/content";
+
+/**
+ * One card for all three content types. There is no border and no panel: the
+ * picture, the coloured category label, and the headline are the card. What
+ * separates a review from a guide is the score badge, not a different shape.
+ */
+interface Props {
+  summary: ArticleSummary;
+  /**
+   * `grid`    picture above the copy — the default
+   * `row`     wide horizontal row, picture on the left
+   * `compact` small thumbnail beside a short title, for sidebars and lists
+   * `text`    no picture at all, for dense secondary lists
+   */
+  variant?: "grid" | "row" | "compact" | "text";
+  /** Loads the picture eagerly — set it on cards above the fold. */
+  eager?: boolean;
+  showExcerpt?: boolean;
+  showByline?: boolean;
+  /** Prints "Review" / "Comparison" / "Guide" after the category. */
+  showKind?: boolean;
+  headingLevel?: "h2" | "h3" | "h4";
+  /**
+   * The headline's size, independent of its level. Three across a full-width
+   * grid can carry `h3`; four across, or inside the sidebar column, wants the
+   * default.
+   */
+  titleSize?: "h3" | "h4" | "h5";
+  /** Overrides the variant's default `sizes`. See `src/lib/imageSizes.ts`. */
+  sizes?: string;
+  class?: string;
+}
+
+const {
+  summary,
+  variant = "grid",
+  eager = false,
+  showExcerpt = false,
+  showByline = true,
+  showKind = false,
+  headingLevel = "h3",
+  titleSize = "h4",
+  sizes,
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const Heading = headingLevel;
+const kind = kindMeta[summary.kind];
+const loading = eager ? "eager" : "lazy";
+
+/*
+ * The frame's own ratio, handed to the image pipeline so every candidate in the
+ * srcset is generated already cropped to it.
+ *
+ * This matters more than it looks. Without it Astro keeps the source ratio, and
+ * a landscape cover filling a 4:5 frame has to be scaled until its *height*
+ * fits — which needs about 1.9x the width the `sizes` string asks for. The
+ * browser downloads the width it was promised, the frame paints it 1.9x too
+ * large, and every card in the grid comes out soft.
+ */
+const frame = variant === "row" ? { width: 1200, height: 750 } : { width: 1000, height: 1250 };
+const coverSizes =
+  sizes ??
+  (variant === "compact" ? cardSizes.thumb : variant === "row" ? cardSizes.rowMedia : cardSizes.grid3);
+---
+
+{
+  variant === "compact" ? (
+    <article class:list={["acard-compact", className]} style={categoryStyle(summary.category)} {...rest}>
+      <div class="acard-compact__media">
+        <Image
+          src={summary.cover.src}
+          alt=""
+          width={128}
+          height={160}
+          fit="cover"
+          sizes={coverSizes}
+          loading={loading}
+          decoding="async"
+        />
+      </div>
+      <a class="overlay-link" href={summary.href} aria-label={summary.title} />
+      <div class="acard-compact__body">
+        <p class="txt-cat">{summary.category}</p>
+        <Heading class="txt-h6 acard__title">{summary.title}</Heading>
+      </div>
+      {summary.score !== undefined && <ScoreBadge score={summary.score} size="xs" quiet />}
+    </article>
+  ) : variant === "text" ? (
+    <article class:list={["acard-text", className]} style={categoryStyle(summary.category)} {...rest}>
+      <a class="overlay-link" href={summary.href} aria-label={summary.title} />
+      <div class="acard-text__body">
+        <p class="txt-cat">{summary.category}</p>
+        <Heading class="txt-h5 acard__title">{summary.title}</Heading>
+        <ArticleMeta summary={summary} showByline={showByline} />
+      </div>
+      {summary.score !== undefined && <ScoreBadge score={summary.score} size="sm" quiet />}
+    </article>
+  ) : (
+    <article
+      class:list={["acard zoom-host", variant === "row" && "acard--row", className]}
+      style={categoryStyle(summary.category)}
+      {...rest}
+    >
+      <div class="acard__media">
+        <div class:list={["media", variant === "row" ? "media--wide" : "media--tall"]}>
+          <Image
+            src={summary.cover.src}
+            alt=""
+            width={frame.width}
+            height={frame.height}
+            fit="cover"
+            widths={[320, 480, 640, 900, 1200]}
+            sizes={coverSizes}
+            loading={loading}
+            decoding="async"
+          />
+        </div>
+        {summary.score !== undefined && (
+          <ScoreBadge score={summary.score} size="sm" class="acard__score" />
+        )}
+      </div>
+
+      <a class="overlay-link" href={summary.href} aria-label={summary.title} />
+
+      <div class="acard__body">
+        <p class="acard__kicker">
+          <a class="txt-cat acard__category" href={categoryHref(summary.category)}>
+            {summary.category}
+          </a>
+          {showKind && <span class="txt-eyebrow acard__kind">{kind.label}</span>}
+        </p>
+        <Heading class:list={[variant === "row" ? "txt-h3" : `txt-${titleSize}`, "acard__title"]}>
+          {summary.title}
+        </Heading>
+        {(showExcerpt || variant === "row") && (
+          <p class="txt-s txt-dim line-clamp-2">{summary.excerpt}</p>
+        )}
+        <ArticleMeta
+          summary={summary}
+          showByline={showByline}
+          showReadTime={variant === "row"}
+          class="acard__meta"
+        />
+      </div>
+    </article>
+  )
+}
+
+<style>
+  /* --------------------------------------------------------------- grid --- */
+
+  .acard {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .acard__media {
+    position: relative;
+  }
+
+  /* Flush into the corner of the frame rather than inset from it: a square
+     badge with a margin reads as a sticker, and the score is not a sticker. */
+  .acard__score {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .acard__body {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  /* Baseline, not centre: two runs of text at different weights belong on one
+     line, and centring them leaves the shorter box free to round to a different
+     device pixel from one card to the next. */
+  .acard__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin: 0;
+  }
+
+  .acard__category {
+    position: relative;
+    z-index: 3;
+  }
+
+  /*
+   * "Review" / "Comparison" / "Guide", set in the same capitals as the category
+   * beside it and separated by a dot — one line of small type in one voice. The
+   * weight is what ranks them: the category is the label, the type of article is
+   * the footnote.
+   */
+  .acard__kind {
+    position: relative;
+    color: var(--n-500);
+    font-weight: 500;
+  }
+
+  .acard__kind::before {
+    position: absolute;
+    left: -0.5rem;
+    top: 50%;
+    width: 2px;
+    height: 2px;
+    content: "";
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.65;
+  }
+
+  .acard__title {
+    transition: color 0.2s ease;
+  }
+
+  .acard:hover .acard__title,
+  .acard-compact:hover .acard__title,
+  .acard-text:hover .acard__title {
+    color: var(--accent);
+  }
+
+  .acard__meta {
+    margin-top: auto;
+    padding-top: 0.2rem;
+  }
+
+  /* ---------------------------------------------------------------- row --- */
+
+  .acard--row {
+    gap: 1rem;
+  }
+
+  @media (min-width: 48rem) {
+    .acard--row {
+      display: grid;
+      grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+      gap: 1.75rem;
+      align-items: center;
+    }
+  }
+
+  /* ------------------------------------------------------------ compact --- */
+
+  .acard-compact {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  /* Portrait, like every other frame in the theme — a square thumbnail beside
+     a tall card grid is the detail that makes a list look bolted on. */
+  .acard-compact__media {
+    width: 3.5rem;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--muted);
+  }
+
+  .acard-compact__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .acard-compact__body {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  /* --------------------------------------------------------------- text --- */
+
+  .acard-text {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .acard-text__body {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+</style>

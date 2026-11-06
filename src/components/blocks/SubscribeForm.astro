@@ -1,0 +1,81 @@
+---
+import { siteConfig } from "@/config/site";
+
+/**
+ * The email capture. It ships disabled: `siteConfig.newsletter.enabled` plus a
+ * form `action` from your provider switches it on. Until then the field and the
+ * button are disabled and say so, rather than silently swallowing addresses.
+ */
+interface Props {
+  id: string;
+  onDark?: boolean;
+  showTerms?: boolean;
+  align?: "start" | "center";
+  class?: string;
+}
+
+const { id, onDark = false, showTerms = true, align = "start", class: className = "" } = Astro.props;
+
+const newsletter = siteConfig.newsletter;
+const action = newsletter.action.trim();
+const isConfigured = newsletter.enabled && action.length > 0;
+const method = newsletter.method || "post";
+const emailFieldName = newsletter.emailFieldName || "email";
+const noteId = `${id}-note`;
+---
+
+<form
+  class:list={["subscribe-form", align === "center" && "subscribe-form--center", className]}
+  action={isConfigured ? action : undefined}
+  method={method}
+  aria-describedby={noteId}
+>
+  <div class:list={["field", onDark && "field--onDark"]}>
+    <label class="sr-only" for={id}>Email address</label>
+    <input
+      id={id}
+      class="field__input"
+      type="email"
+      name={emailFieldName}
+      autocomplete="email"
+      placeholder="you@example.com"
+      required
+      disabled={!isConfigured}
+    />
+    <button type="submit" class="btn" disabled={!isConfigured}>
+      {isConfigured ? "Subscribe" : "Coming soon"}
+    </button>
+  </div>
+  {
+    showTerms ? (
+      <p id={noteId} class:list={["form-note", onDark && "txt-dim"]}>
+        {isConfigured ? (
+          newsletter.terms
+        ) : (
+          <>Newsletter signup is disabled until a provider is configured.</>
+        )}
+      </p>
+    ) : (
+      <p id={noteId} class="sr-only">
+        {isConfigured
+          ? newsletter.terms
+          : "Newsletter signup is disabled until a provider is configured."}
+      </p>
+    )
+  }
+</form>
+
+<style>
+  .subscribe-form {
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 24rem;
+  }
+
+  .subscribe-form--center {
+    justify-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+</style>

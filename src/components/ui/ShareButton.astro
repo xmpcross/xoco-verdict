@@ -1,0 +1,66 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+
+/**
+ * Opens the page's `<ShareSheet>`. A page can carry several of these — the one
+ * under an article's byline and the one at the end of the reading — and they
+ * all drive the single sheet the page rendered.
+ */
+interface Props {
+  /** The `id` of the sheet this opens. */
+  sheetId?: string;
+  /**
+   * `quiet`  an inline text control, for a byline row
+   * `button` an outlined button, for the end of an article
+   */
+  variant?: "quiet" | "button";
+  label?: string;
+  class?: string;
+}
+
+const {
+  sheetId = "share-sheet",
+  variant = "quiet",
+  label = variant === "button" ? "Share this article" : "Share",
+  class: className = "",
+  ...rest
+} = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    variant === "button" ? "btn btn--ghost btn--sm" : "share-inline",
+    className,
+  ]}
+  aria-haspopup="dialog"
+  aria-controls={sheetId}
+  data-share-open
+  {...rest}
+>
+  <Icon name="share" size={variant === "button" ? 14 : 15} />
+  <span>{label}</span>
+</button>
+
+<style>
+  .share-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    letter-spacing: var(--ls-control);
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+
+  .share-inline:hover {
+    color: var(--accent);
+  }
+</style>

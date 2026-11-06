@@ -1,0 +1,38 @@
+---
+import { formatScore, scoreBandFor, SCORE_MAX } from "@/config/scoring";
+
+/**
+ * The number. Everything else on a review page exists to justify it.
+ *
+ * The badge takes its colour from the band the score falls into
+ * (`config/scoring.ts`), passed down as `--tone` so a band label or meter
+ * beside it can inherit the same hue.
+ */
+interface Props {
+  score: number;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  /** Outline instead of fill — for lists where every row carries a badge. */
+  quiet?: boolean;
+  class?: string;
+}
+
+/*
+ * `...rest` matters more than it looks: when a parent passes this component a
+ * class from its own scoped stylesheet, Astro sends the scope attribute along
+ * as a prop. Without spreading it onto the root element the attribute is
+ * dropped, Astro prunes the "unused" rule, and the parent's positioning
+ * silently disappears from the build.
+ */
+const { score, size = "sm", quiet = false, class: className = "", ...rest } = Astro.props;
+const band = scoreBandFor(score);
+---
+
+<span
+  class:list={["score", `score--${size}`, quiet && "score--quiet", className]}
+  style={`--tone: var(--score-${band.tone})`}
+  data-score={score}
+  {...rest}
+>
+  <span aria-hidden="true">{formatScore(score)}</span>
+  <span class="sr-only">{`${formatScore(score)} out of ${SCORE_MAX} — ${band.label}`}</span>
+</span>

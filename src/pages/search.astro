@@ -1,0 +1,277 @@
+---
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import Icon from "@/components/ui/Icon.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { loadLibrary } from "@/lib/articles";
+
+const library = await loadLibrary();
+---
+
+<BaseLayout
+  title="Search"
+  description={`Search ${siteConfig.name} reviews, comparisons, and guides.`}
+  noindex
+>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title="Search"
+        description="Reviews, comparisons, and guides. Every word has to match, so two terms narrow the results rather than widening them."
+        divider={false}
+      />
+
+      <form
+        class="search-page-bar"
+        role="search"
+        aria-label="Site search"
+        action="/search/"
+        method="get"
+      >
+        <label class="sr-only" for="search-page-input">Search the site</label>
+        <div class="field search-page-field">
+          <Icon name="search" class="search-page-field__icon" size={18} />
+          <input
+            id="search-page-input"
+            class="field__input"
+            name="q"
+            type="search"
+            placeholder="Product, brand, category, reviewer…"
+            autocomplete="off"
+            enterkeyhint="search"
+            data-search-page-input
+          />
+          <button type="submit" class="btn">Search</button>
+        </div>
+        <p class="txt-label txt-dim" aria-live="polite" data-search-page-count></p>
+      </form>
+    </div>
+
+    <section class="container section search-page-section">
+      <h2 class="sr-only">Results</h2>
+      <div class="search-page-results" data-search-page-results></div>
+
+      <div class="panel search-page-blank" hidden data-search-page-blank>
+        <p class="txt-h4">
+          Nothing matches <span data-search-page-term></span>
+        </p>
+        <p class="txt-s txt-dim">
+          Try one word — a product name, a brand, a category, or a reviewer.
+        </p>
+        <div class="row">
+          <a class="btn btn--ghost" href="/blog/">Browse guides</a>
+          <a class="btn btn--ghost" href="/reviews/">Browse reviews</a>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="txt-s txt-dim">
+          Search needs JavaScript.{" "}
+          <a class="underline-hover" href="/reviews/">Browse the reviews</a> instead.
+        </p>
+      </noscript>
+    </section>
+  </main>
+
+  <SiteFooter />
+
+  <script is:inline>
+    (() => {
+      const input = document.querySelector("[data-search-page-input]");
+      const results = document.querySelector("[data-search-page-results]");
+      const count = document.querySelector("[data-search-page-count]");
+      const blank = document.querySelector("[data-search-page-blank]");
+      const term = document.querySelector("[data-search-page-term]");
+
+      if (!input || !results || !count || !blank || !term) return;
+
+      /**
+       * The same build-time index the header palette reads, fetched once on the
+       * first query rather than inlined into this page, so the two searches
+       * cannot drift apart and the page itself stays small.
+       */
+      let items;
+      let request;
+
+      const loadIndex = () => {
+        request ??= fetch("/search-index.json")
+          .then((response) => {
+            if (!response.ok) throw new Error("Search index unavailable");
+            return response.json();
+          })
+          .then((list) => {
+            items = (Array.isArray(list) ? list : []).map((item) => ({
+              ...item,
+              /* Flattened once per item so each keystroke is a substring test. */
+              haystack: [
+                item.title,
+                item.excerpt,
+                item.kind,
+                item.category,
+                item.product,
+                item.brand,
+                ...(item.bylines || []),
+                ...(item.tags || []),
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase(),
+            }));
+            return items;
+          })
+          .catch(() => {
+            items = [];
+            return items;
+          });
+
+        return request;
+      };
+
+      const escapeHtml = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[character],
+        );
+
+      const plural = (value, word) => `${value} ${value === 1 ? word : `${word}s`}`;
+
+      const cardMarkup = (item) => `
+        <article class="panel search-page-card">
+          <p class="search-page-card__top">
+            <span class="chip">${escapeHtml(item.kind)}</span>
+            <span class="chip">${escapeHtml(item.category)}</span>
+            ${
+              item.score === null || item.score === undefined
+                ? ""
+                : `<span class="search-page-card__score">${escapeHtml(Number(item.score).toFixed(1))}</span>`
+            }
+          </p>
+          <h3 class="txt-h4"><a class="underline-hover" href="${escapeHtml(item.href)}">${escapeHtml(item.title)}</a></h3>
+          <p class="txt-s txt-dim line-clamp-2">${escapeHtml(item.excerpt)}</p>
+          <p class="txt-label txt-dim">${escapeHtml((item.bylines || []).join(", "))} &middot; ${escapeHtml(item.date)}</p>
+        </article>
+      `;
+
+      const applyQuery = async () => {
+        const raw = input.value.trim();
+        const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+
+        if (terms.length === 0) {
+          count.textContent = "";
+          results.innerHTML = "";
+          blank.hidden = true;
+          return;
+        }
+
+        if (!items) count.textContent = "Searching…";
+
+        const list = items ?? (await loadIndex());
+        /* A later keystroke owns the render once the fetch settles. */
+        if (input.value.trim() !== raw) return;
+
+        const matches = list.filter((item) => terms.every((word) => item.haystack.includes(word)));
+
+        count.textContent = `${plural(matches.length, "result")} for “${raw}”`;
+        results.innerHTML = matches.map(cardMarkup).join("");
+        term.textContent = `“${raw}”`;
+        blank.hidden = matches.length > 0;
+      };
+
+      input.value = new URLSearchParams(window.location.search).get("q") || "";
+      void applyQuery();
+
+      input.addEventListener("input", () => {
+        void applyQuery();
+        /* Keeps the address bar shareable while typing, without adding a
+           history entry per keystroke. */
+        const url = new URL(window.location.href);
+        const raw = input.value.trim();
+        if (raw) url.searchParams.set("q", raw);
+        else url.searchParams.delete("q");
+        window.history.replaceState(null, "", url);
+      });
+    })();
+  </script>
+
+  <style>
+    .search-page-bar {
+      display: grid;
+      justify-items: start;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .search-page-field {
+      width: 100%;
+      max-width: 36rem;
+      height: 3rem;
+    }
+
+    /* `:global` is required: Icon renders the svg, so it never receives this
+       page's scoping attribute. */
+    .search-page-field :global(.search-page-field__icon) {
+      margin-left: 0.875rem;
+      color: var(--muted-foreground);
+    }
+
+    .search-page-section {
+      padding-top: 2rem;
+    }
+
+    .search-page-results {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 48rem) {
+      .search-page-results {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .search-page-results :global(.search-page-card) {
+      display: grid;
+      align-content: start;
+      gap: 0.5rem;
+      padding: 1.25rem;
+    }
+
+    .search-page-results :global(.search-page-card__top) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      margin: 0;
+    }
+
+    .search-page-results :global(.search-page-card__score) {
+      margin-left: auto;
+      font-family: var(--font-display);
+      font-size: var(--fs-h4);
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Kept to the width of the field above it, so a failed query does not read
+       as a wide empty band. */
+    .search-page-blank {
+      display: grid;
+      justify-items: start;
+      gap: 0.75rem;
+      max-width: 36rem;
+      padding: 2rem;
+    }
+  </style>
+</BaseLayout>

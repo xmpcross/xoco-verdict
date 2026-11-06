@@ -1,0 +1,122 @@
+---
+/**
+ * Every icon in the theme. The SVGs are Phosphor Icons (MIT, regular weight)
+ * held locally in `src/icons/phosphor` — nothing is requested at runtime, and
+ * there is no icon font or sprite.
+ *
+ * Phosphor's regular weight draws a 16/256 stroke, which lands on exactly 1px
+ * at a 16px icon: the same hairline the rest of the theme rules with. Each file
+ * already carries `fill="currentColor"` and no intrinsic size, so colour comes
+ * from the surrounding text and size comes from the `size` prop.
+ *
+ * To add an icon, drop `<name>.svg` into that folder and register it below.
+ */
+import arrowLeft from "@/icons/phosphor/arrow-left.svg?raw";
+import arrowRight from "@/icons/phosphor/arrow-right.svg?raw";
+import arrowSquareOut from "@/icons/phosphor/arrow-square-out.svg?raw";
+import butterfly from "@/icons/phosphor/butterfly.svg?raw";
+import calendarBlank from "@/icons/phosphor/calendar-blank.svg?raw";
+import caretDown from "@/icons/phosphor/caret-down.svg?raw";
+import check from "@/icons/phosphor/check.svg?raw";
+import clipboardText from "@/icons/phosphor/clipboard-text.svg?raw";
+import clock from "@/icons/phosphor/clock.svg?raw";
+import dotsThree from "@/icons/phosphor/dots-three.svg?raw";
+import envelopeSimple from "@/icons/phosphor/envelope-simple.svg?raw";
+import facebook from "@/icons/phosphor/facebook-logo.svg?raw";
+import instagram from "@/icons/phosphor/instagram-logo.svg?raw";
+import linkSimple from "@/icons/phosphor/link-simple.svg?raw";
+import linkedin from "@/icons/phosphor/linkedin-logo.svg?raw";
+import list from "@/icons/phosphor/list.svg?raw";
+import magnifyingGlass from "@/icons/phosphor/magnifying-glass.svg?raw";
+import mastodon from "@/icons/phosphor/mastodon-logo.svg?raw";
+import pinterest from "@/icons/phosphor/pinterest-logo.svg?raw";
+import reddit from "@/icons/phosphor/reddit-logo.svg?raw";
+import rss from "@/icons/phosphor/rss-simple.svg?raw";
+import shareNetwork from "@/icons/phosphor/share-network.svg?raw";
+import slidersHorizontal from "@/icons/phosphor/sliders-horizontal.svg?raw";
+import telegram from "@/icons/phosphor/telegram-logo.svg?raw";
+import threads from "@/icons/phosphor/threads-logo.svg?raw";
+import tiktok from "@/icons/phosphor/tiktok-logo.svg?raw";
+import whatsapp from "@/icons/phosphor/whatsapp-logo.svg?raw";
+import x from "@/icons/phosphor/x.svg?raw";
+import xLogo from "@/icons/phosphor/x-logo.svg?raw";
+import youtube from "@/icons/phosphor/youtube-logo.svg?raw";
+
+const icons = {
+  "arrow-left": arrowLeft,
+  "arrow-right": arrowRight,
+  /* Phosphor has no Bluesky mark; the butterfly is the logo it draws. */
+  bluesky: butterfly,
+  calendar: calendarBlank,
+  "caret-down": caretDown,
+  check,
+  clipboard: clipboardText,
+  clock,
+  close: x,
+  email: envelopeSimple,
+  external: arrowSquareOut,
+  facebook,
+  instagram,
+  link: linkSimple,
+  linkedin,
+  mastodon,
+  menu: list,
+  more: dotsThree,
+  pinterest,
+  reddit,
+  rss,
+  share: shareNetwork,
+  sliders: slidersHorizontal,
+  search: magnifyingGlass,
+  telegram,
+  threads,
+  tiktok,
+  "twitter-x": xLogo,
+  whatsapp,
+  youtube,
+};
+
+export type IconName = keyof typeof icons;
+
+interface Props {
+  name: IconName;
+  /** Rendered size in pixels, square. */
+  size?: number;
+  class?: string;
+}
+
+const { name, size = 16, class: className = "", ...rest } = Astro.props;
+
+/**
+ * The raw file is emitted as-is apart from the size, which is injected so the
+ * glyph does not depend on a CSS rule reaching it. `set:html` is safe here: the
+ * markup is a local build-time asset, never user input.
+ */
+const svg = icons[name].replace("<svg", `<svg width="${size}" height="${size}"`);
+---
+
+<span
+  class:list={["icon", className]}
+  style={`--icon-size:${size}px`}
+  aria-hidden="true"
+  set:html={svg}
+  {...rest}
+/>
+
+<style>
+  .icon {
+    display: inline-grid;
+    place-items: center;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+  }
+
+  /* `:global` is required: the svg comes from `set:html`, so it never receives
+     this component's scoping attribute. */
+  .icon :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

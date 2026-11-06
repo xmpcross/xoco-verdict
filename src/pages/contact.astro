@@ -1,0 +1,339 @@
+---
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import Icon from "@/components/ui/Icon.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { loadLibrary } from "@/lib/articles";
+import { socialIconFor } from "@/lib/socials";
+
+const library = await loadLibrary();
+const contact = siteConfig.contact;
+const contactAction = contact.action.trim();
+const isContactConfigured = contact.enabled && contactAction.length > 0;
+
+/** Drives the topic picker; the ones carrying a note also appear beside it. */
+const topics: { label: string; detail?: string }[] = [
+  {
+    label: "Correction",
+    detail: "A number that looks wrong, a price that has moved, a product we missed.",
+  },
+  {
+    label: "Test request",
+    detail: "Something you want on the bench. Tell us what you would use it for.",
+  },
+  {
+    label: "Press and PR",
+    detail: "We do not accept gifted units. Loan units are possible and are disclosed on the page.",
+  },
+  { label: "Theme support" },
+];
+
+const hasContactDetails = Boolean(
+  siteConfig.email || contact.office.length > 0 || contact.responseTime,
+);
+---
+
+<BaseLayout
+  title="Contact"
+  description={`Contact ${siteConfig.name} with a correction, a test request, or a press inquiry.`}
+>
+  <SiteHeader articles={library.articles} />
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title="Get in touch"
+        description="If a number on this site looks wrong, that is the message we most want to receive. Test requests and press inquiries are welcome too."
+        divider={false}
+      />
+    </div>
+
+    <section class="container section section-top">
+      <div class="contact-grid">
+        <form
+          class="contact-form"
+          action={isContactConfigured ? contactAction : undefined}
+          method={contact.method}
+          aria-describedby={!isContactConfigured ? "contact-configuration-note" : undefined}
+        >
+          <div>
+            <h2 class="txt-h3">Send a message</h2>
+            <p class="txt-s txt-dim">
+              For a correction, include the page and the figure you are disputing — it gets read
+              faster than a description of it.
+            </p>
+          </div>
+
+          <div class="contact-row">
+            <div class="contact-field">
+              <label class="txt-sub-xs" for="contact-first-name">First name</label>
+              <input
+                id="contact-first-name"
+                class="input"
+                name="firstName"
+                type="text"
+                autocomplete="given-name"
+                required
+                disabled={!isContactConfigured}
+              />
+            </div>
+
+            <div class="contact-field">
+              <label class="txt-sub-xs" for="contact-last-name">Last name</label>
+              <input
+                id="contact-last-name"
+                class="input"
+                name="lastName"
+                type="text"
+                autocomplete="family-name"
+                required
+                disabled={!isContactConfigured}
+              />
+            </div>
+          </div>
+
+          <div class="contact-field">
+            <label class="txt-sub-xs" for="contact-email">Email</label>
+            <input id="contact-email" class="input" name="email" type="email" autocomplete="email" required disabled={!isContactConfigured} />
+          </div>
+
+          <div class="contact-field">
+            <label class="txt-sub-xs" for="contact-topic">Topic</label>
+            <div class="contact-select">
+              <select id="contact-topic" class="input" name="topic" required disabled={!isContactConfigured}>
+                <option value="">Choose a topic</option>
+                {topics.map((topic) => <option>{topic.label}</option>)}
+              </select>
+              <Icon name="caret-down" class="contact-select__icon" size={16} />
+            </div>
+          </div>
+
+          <div class="contact-field">
+            <label class="txt-sub-xs" for="contact-message">Message</label>
+            <textarea id="contact-message" class="input contact-textarea" name="message" rows="6" required disabled={!isContactConfigured}></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--lg contact-submit" disabled={!isContactConfigured}>
+            {isContactConfigured ? "Send message" : "Form unavailable"}
+          </button>
+          {
+            !isContactConfigured && (
+              <p id="contact-configuration-note" class="form-note">
+                This demo form is disabled until a form endpoint is configured.
+              </p>
+            )
+          }
+        </form>
+
+        <aside class="contact-details" aria-label="Contact information">
+          <div class="contact-block">
+            <h2 class="txt-h4">Contact details</h2>
+            {
+              hasContactDetails ? (
+                <dl class="contact-list">
+                  {siteConfig.email && (
+                    <div>
+                      <dt class="txt-sub-xs">Newsroom</dt>
+                      <dd class="txt-s txt-dim">
+                        <a class="underline-hover" href={`mailto:${siteConfig.email}`}>
+                          {siteConfig.email}
+                        </a>
+                      </dd>
+                    </div>
+                  )}
+                  {contact.office.length > 0 && (
+                    <div>
+                      <dt class="txt-sub-xs">Office</dt>
+                      <dd class="txt-s txt-dim">
+                        {contact.office.map((line) => (
+                          <span class="contact-line">{line}</span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {contact.responseTime && (
+                    <div>
+                      <dt class="txt-sub-xs">Response time</dt>
+                      <dd class="txt-s txt-dim">{contact.responseTime}</dd>
+                    </div>
+                  )}
+                </dl>
+              ) : (
+                <p class="txt-s txt-dim">
+                  Add your contact details in the central site configuration before
+                  publishing.
+                </p>
+              )
+            }
+          </div>
+
+          <div class="contact-block">
+            <h2 class="txt-h4">Where it lands</h2>
+            <dl class="contact-list">
+              {
+                topics
+                  .filter((topic) => topic.detail)
+                  .map((topic) => (
+                    <div>
+                      <dt class="txt-sub-xs">{topic.label}</dt>
+                      <dd class="txt-s txt-dim">{topic.detail}</dd>
+                    </div>
+                  ))
+              }
+            </dl>
+          </div>
+
+          <div class="contact-block">
+            <h2 class="txt-h4">Elsewhere</h2>
+            <p class="txt-s txt-dim">
+              Quick questions travel just as well through our social accounts.
+            </p>
+            <ul class="contact-socials hover-fade-group">
+              {
+                siteConfig.socials.map((item) => (
+                  <li>
+                    <a
+                      class="icon-btn"
+                      href={item.href}
+                      aria-label={item.label}
+                      rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+                    >
+                      <Icon name={socialIconFor(item.label)} size={18} />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .contact-grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .contact-grid {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+      gap: 3.5rem;
+    }
+  }
+
+  .contact-form {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+
+  .contact-field {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  /* First and last name share a line once there is room for two labels. */
+  .contact-row {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 34rem) {
+    .contact-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* The native control indents its own text past the other fields and pins the
+     arrow to the very edge, so the select drops platform chrome and the page
+     draws the chevron where the field's own padding puts it. */
+  .contact-select {
+    position: relative;
+  }
+
+  .contact-select select {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 2.75rem;
+  }
+
+  /* `:global` is required: Icon renders the svg, so it never receives this
+     page's scoping attribute. */
+  .contact-select :global(.contact-select__icon) {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted-foreground);
+  }
+
+  .contact-textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  .contact-submit {
+    justify-self: start;
+  }
+
+  /*
+   * Neither column is a panel: a single hairline separates the form from the
+   * details — stacked above them on narrow screens, running the full height of
+   * the row once the two sit side by side.
+   */
+  .contact-details {
+    display: grid;
+    align-content: start;
+    gap: 1.75rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+  }
+
+  @media (min-width: 64rem) {
+    .contact-details {
+      border-top: 0;
+      border-left: 1px solid var(--border);
+      padding-top: 0;
+      padding-left: 3.5rem;
+    }
+  }
+
+  .contact-block {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .contact-block + .contact-block {
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+  }
+
+  .contact-list {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .contact-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact-list dd {
+    margin: 0.2rem 0 0;
+  }
+
+  .contact-line {
+    display: block;
+  }
+</style>

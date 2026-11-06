@@ -1,0 +1,62 @@
+---
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { loadLibrary } from "@/lib/articles";
+
+const library = await loadLibrary();
+---
+
+<BaseLayout title="Privacy Policy" description={`Privacy policy for ${siteConfig.name}.`}>
+  <SiteHeader articles={library.articles} />
+  <main id="content">
+    <div class="container-reading">
+      <PageHeader
+        title="Privacy Policy"
+        description="What a publication running this theme may collect, how that information can be used, and how readers can get in touch about privacy requests."
+      />
+    </div>
+
+    <section class="container-reading section section-top">
+      <div class="prose">
+        <h2>Information collected</h2>
+        <p>
+          The site may collect newsletter email addresses, contact-form messages, analytics events,
+          and advertising or affiliate-network data when those features are enabled. None of them
+          are enabled in the theme as shipped.
+        </p>
+
+        <h2>Affiliate links</h2>
+        <p>
+          Retailer links on this site may be affiliate links. When a reader follows one, the
+          retailer's own cookies and tracking apply, and the retailer may share a record of a
+          resulting purchase so a commission can be attributed. That record does not identify the
+          reader to us beyond the fact that a sale occurred.
+        </p>
+
+        <h2>How it is used</h2>
+        <p>
+          Collected data may be used for publishing, responding to inquiries, sending email,
+          measuring traffic, improving content, and complying with legal obligations.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          {
+            siteConfig.email ? (
+              <>
+                For privacy requests, contact{" "}
+                <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
+              </>
+            ) : (
+              "Add a privacy contact address in the central site configuration before publishing."
+            )
+          }
+        </p>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>

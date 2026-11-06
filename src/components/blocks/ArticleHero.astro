@@ -1,0 +1,118 @@
+---
+import ArticleMeta from "@/components/ui/ArticleMeta.astro";
+import Breadcrumbs from "@/components/blocks/Breadcrumbs.astro";
+import ShareButton from "@/components/ui/ShareButton.astro";
+import { categoryStyle } from "@/config/categories";
+import { kindMeta, type ArticleSummary } from "@/lib/content";
+
+/**
+ * The opening of every article page: a full-bleed band in the category's own
+ * colour carrying the breadcrumb, the headline, and the byline.
+ *
+ * There is no photograph here on purpose. A review headline has to carry a
+ * product name, a claim, and a date, and none of those survive being set over
+ * someone else's product shot. The gradient gives the page its colour and its
+ * sense of place — Audio is green, Cameras is warm — without asking an editor
+ * to source a hero image for every post.
+ */
+interface Props {
+  summary: ArticleSummary;
+  /** Extra crumbs after the section, innermost last. */
+  crumbs?: { label: string; href?: string }[];
+  class?: string;
+}
+
+const { summary, crumbs = [], class: className = "", ...rest } = Astro.props;
+const kind = kindMeta[summary.kind];
+
+/*
+ * Section and category only. The headline is directly under the trail and the
+ * home page is one tap away in the header, so printing either here spends a
+ * line of the hero repeating what the reader can already see.
+ */
+const trail = [{ label: kind.plural, href: kind.archive }, ...crumbs];
+---
+
+<header
+  class:list={["ahero cat-band", className]}
+  style={categoryStyle(summary.category)}
+  {...rest}
+>
+  <div class="container ahero__inner">
+    <Breadcrumbs crumbs={trail} class="ahero__crumbs" />
+
+    <h1 class="ahero__title">{summary.title}</h1>
+
+    <p class="txt-l ahero__excerpt">{summary.excerpt}</p>
+
+    {/* No category label here: the trail above the headline already names the
+        desk, and printing it twice in one hero spends a line saying nothing. */}
+    <div class="ahero__meta">
+      <ArticleMeta summary={summary} showReadTime />
+    </div>
+
+    {/* The sheet this opens is rendered once per page, by `ArticleFooter` —
+        which is the block that already knows the article's canonical URL. */}
+    <ShareButton class="ahero__share" />
+  </div>
+</header>
+
+<style>
+  /* The band runs up behind the header, which carries no fill of its own until
+     the reader scrolls — so the page opens on one continuous colour. */
+  .ahero {
+    margin-top: calc(var(--header-height) * -1);
+    padding-top: var(--header-height);
+  }
+
+  .ahero__inner {
+    display: grid;
+    justify-items: start;
+    gap: 0.9rem;
+    max-width: calc(56rem + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-block: 2.25rem 3rem;
+  }
+
+  .ahero__crumbs {
+    margin-bottom: 0.25rem;
+  }
+
+  /* No character cap: the 56rem measure is the cap, and a headline squeezed
+     into 18ch of a face this large comes out as a narrow stack of five lines. */
+  .ahero__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.125rem, 5vw, 3.75rem);
+    font-weight: var(--weight-title);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+
+  .ahero__excerpt {
+    max-width: 52ch;
+    color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  }
+
+  .ahero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    margin-top: 0.35rem;
+  }
+
+  /* Under the byline rather than beside it: on a phone the byline already wraps
+     to two lines, and a control on the end of that is unfindable. */
+  .ahero__share {
+    margin-top: 0.35rem;
+  }
+
+  @media (min-width: 48rem) {
+    .ahero__inner {
+      gap: 1.1rem;
+      padding-block: 3.5rem 4.5rem;
+    }
+  }
+</style>

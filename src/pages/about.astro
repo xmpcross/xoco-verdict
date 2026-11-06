@@ -1,0 +1,353 @@
+---
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import SectionHeader from "@/components/blocks/SectionHeader.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { siteConfig } from "@/config/site";
+import { authorProfile } from "@/config/authors";
+import { scoreBands, SCORE_MAX } from "@/config/scoring";
+import { loadLibrary, reviewerIndex } from "@/lib/articles";
+import { authorHref, categories, kindMeta, articleKinds, type ArticleKind } from "@/lib/content";
+
+const library = await loadLibrary();
+const reviewers = reviewerIndex(library.articles);
+const editor = reviewers.find((reviewer) => reviewer.name === siteConfig.editor.name);
+const editorProfile = authorProfile(siteConfig.editor.name);
+
+const counts: Record<ArticleKind, number> = {
+  review: library.reviews.length,
+  comparison: library.comparisons.length,
+  post: library.posts.length,
+};
+---
+
+<BaseLayout
+  title="About"
+  description={`How ${siteConfig.name} works: who runs the benches, how products are bought and scored, and how the site makes money.`}
+>
+  <SiteHeader articles={library.articles} />
+
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title={`About ${siteConfig.name}`}
+        description={siteConfig.bio}
+        meta={`${counts.review} reviews · ${counts.comparison} comparisons · ${counts.post} guides`}
+      />
+    </div>
+
+    <div class="container section section-top">
+      <div class="with-sidebar">
+        <div class="stack about-main">
+          <section class="prose" aria-labelledby="about-what">
+            <h2 id="about-what">What this site is</h2>
+            <p>
+              {siteConfig.name} publishes three things. A <strong>review</strong> covers one product
+              and ends in a number. A <strong>comparison</strong> puts two or more products through
+              the same tests and picks one. A <strong>guide</strong> is everything else — the
+              roundups, the buying advice, and the explanations that stop the other two having to
+              re-explain what a spec sheet means.
+            </p>
+
+            <h2 id="independence">How we make money, and what it does not buy</h2>
+            <p>
+              We earn a commission when a reader buys through a retailer link. That is the whole
+              business model, and it has two consequences we are explicit about.
+            </p>
+            <p>
+              First, a commission is paid on any product a reader buys through us, not on the one we
+              recommend — so there is no financial reason to push an expensive pick over a cheap one.
+              Second, testers do not see the affiliate figures, and the price of a unit is withheld
+              from the person testing it until the scoring is finished. Neither of those is a
+              guarantee of virtue. They are just the arrangements that make the obvious failure modes
+              harder.
+            </p>
+            <p>
+              We buy what we test. When a manufacturer sends a loan unit — which happens, usually for
+              a product that has not gone on sale yet — the review says so on its face, in the same
+              line that says how long we had it.
+            </p>
+
+            <h2 id="scoring">What the number means</h2>
+            <p>
+              Every review publishes a weighted breakdown, and the headline score is the weighted
+              average of it. The theme computes that arithmetic rather than trusting a typed-in
+              figure, so the badge can never disagree with the table under it. Scores are on a
+              0–{SCORE_MAX} scale and land in one of five bands:
+            </p>
+          </section>
+
+          <section class="panel bands" aria-labelledby="about-bands">
+            <div class="panel__head">
+              <h2 id="about-bands" class="txt-label">The bands</h2>
+            </div>
+            <ul class="bands__list">
+              {
+                scoreBands.map((band, index) => {
+                  const upper = index === 0 ? SCORE_MAX : scoreBands[index - 1].min;
+                  return (
+                    <li class="bands__row" style={`--tone: var(--score-${band.tone})`}>
+                      <span class="bands__range tabular">
+                        {band.min.toFixed(1)}–{upper.toFixed(1)}
+                      </span>
+                      <span class="bands__copy">
+                        <span class="txt-sub-xs score-band">{band.label}</span>
+                        <span class="txt-s txt-dim">{band.meaning}</span>
+                      </span>
+                    </li>
+                  );
+                })
+              }
+            </ul>
+          </section>
+
+          <section class="prose" aria-labelledby="about-corrections">
+            <h2 id="about-corrections">Corrections and re-tests</h2>
+            <p>
+              A recommendation is only as good as its last check. Guides carry a revision date and a
+              note saying what changed; reviews get re-opened when firmware, pricing, or a rival
+              moves enough to change the answer. If we quietly stop recommending something, the note
+              says that too — a withdrawn pick is information, not an embarrassment to be hidden.
+            </p>
+            <p>
+              Found something wrong? <a href="/contact/">Tell us</a>. Corrections are made on the
+              page, dated, and described.
+            </p>
+          </section>
+        </div>
+
+        <aside class="stack">
+          {
+            editorProfile && (
+              <section class="panel" aria-labelledby="about-editor">
+                <div class="panel__head">
+                  <h2 id="about-editor" class="txt-label">{siteConfig.editor.title}</h2>
+                </div>
+                <div class="panel__body stack">
+                  <div class="about-editor">
+                    <Avatar name={siteConfig.editor.name} size="lg" />
+                    <div>
+                      <p class="txt-h5">
+                        {editor ? (
+                          <a class="underline-hover" href={authorHref(siteConfig.editor.name)}>
+                            {siteConfig.editor.name}
+                          </a>
+                        ) : (
+                          siteConfig.editor.name
+                        )}
+                      </p>
+                      <p class="txt-label txt-dim">Editor-in-chief</p>
+                    </div>
+                  </div>
+                  <p class="txt-s txt-dim">{siteConfig.editor.bio}</p>
+                </div>
+              </section>
+            )
+          }
+
+          <section class="panel" aria-labelledby="about-what-we-publish">
+            <div class="panel__head">
+              <h2 id="about-what-we-publish" class="txt-label">What we publish</h2>
+            </div>
+            <ul class="about-counts">
+              {
+                articleKinds.map((kind) => (
+                  <li class="about-counts__row">
+                    <a class="about-counts__link" href={kindMeta[kind].archive}>
+                      {kindMeta[kind].plural}
+                    </a>
+                    <span class="about-counts__value tabular">{counts[kind]}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+
+          <section class="panel" aria-labelledby="about-desks">
+            <div class="panel__head">
+              <h2 id="about-desks" class="txt-label">The desks</h2>
+            </div>
+            <div class="panel__body chip-row">
+              {categories.map((category) => <span class="chip">{category}</span>)}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <section class="container section" aria-labelledby="about-team">
+      <SectionHeader
+        title="Who does the testing"
+        href="/author/"
+        linkLabel="All reviewers"
+        id="about-team"
+      />
+      <ul class="team">
+        {
+          reviewers.map((reviewer) => {
+            const profile = authorProfile(reviewer.name);
+            return (
+              <li class="team__member">
+                <a class="team__link" href={authorHref(reviewer.name)}>
+                  <Avatar name={reviewer.name} size="md" />
+                  <span class="team__copy">
+                    <span class="txt-sub-xs team__name">{reviewer.name}</span>
+                    <span class="txt-label txt-dim">{reviewer.role}</span>
+                  </span>
+                  <span class="txt-label txt-dim team__count">{reviewer.articles.length}</span>
+                </a>
+                {profile?.bio && <p class="txt-s txt-dim team__bio">{profile.bio}</p>}
+              </li>
+            );
+          })
+        }
+      </ul>
+    </section>
+
+    <NewsletterBand id="about-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .about-main :global(.prose) {
+      font-size: var(--fs-m);
+    }
+
+    .about-main :global(.prose h2:first-child) {
+      margin-top: 0;
+    }
+
+    .bands__list {
+      display: grid;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .bands__row {
+      display: grid;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: 0.85rem;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-soft);
+      border-left: 3px solid var(--tone);
+      padding: 0.8rem var(--panel-pad);
+    }
+
+    .bands__row:last-child {
+      border-bottom: 0;
+    }
+
+    .bands__range {
+      color: var(--tone);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+    }
+
+    .bands__copy {
+      display: grid;
+      gap: 0.15rem;
+      min-width: 0;
+    }
+
+    .about-editor {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .about-counts {
+      display: grid;
+      margin: 0;
+      /* The label above owns no bottom padding, so the list opens the gap. */
+      padding: 0.6rem 0 0;
+      list-style: none;
+    }
+
+    .about-counts__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding: 0.65rem var(--panel-pad);
+    }
+
+    .about-counts__row:last-child {
+      border-bottom: 0;
+    }
+
+    .about-counts__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: var(--fs-s);
+      font-weight: var(--weight-strong);
+    }
+
+    .about-counts__link:hover {
+      color: var(--accent);
+    }
+
+    .about-counts__value {
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    .team {
+      display: grid;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    @media (min-width: 48rem) {
+      .team {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 72rem) {
+      .team {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .team__member {
+      display: grid;
+      align-content: start;
+      gap: 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-block);
+      background: var(--card);
+      padding: 1.1rem;
+    }
+
+    .team__link {
+      display: grid;
+      grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .team__copy {
+      display: grid;
+      gap: 0.1rem;
+      min-width: 0;
+    }
+
+    .team__link:hover .team__name {
+      color: var(--accent);
+    }
+
+    .team__bio {
+      border-top: 1px solid var(--border-soft);
+      padding-top: 0.7rem;
+    }
+  </style>
+</BaseLayout>

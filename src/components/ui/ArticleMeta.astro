@@ -1,0 +1,70 @@
+---
+import Byline from "@/components/ui/Byline.astro";
+import Icon from "@/components/ui/Icon.astro";
+import { formatDate, type ArticleSummary } from "@/lib/content";
+
+/**
+ * The byline / date / read-time line under a headline.
+ *
+ * A review site's most important piece of metadata is the revision date: a
+ * three-year-old "best laptop" page is worse than no page. So when an article
+ * has been updated, the row leads with that and the original date moves into
+ * the tooltip, rather than printing both and letting the reader work it out.
+ */
+interface Props {
+  summary: ArticleSummary;
+  onDark?: boolean;
+  showByline?: boolean;
+  showReadTime?: boolean;
+  /** Marks each fact with its own glyph — used at reading width. */
+  icons?: boolean;
+  class?: string;
+}
+
+const {
+  summary,
+  onDark = false,
+  showByline = true,
+  showReadTime = false,
+  icons = false,
+  class: className = "",
+} = Astro.props;
+
+const revised = summary.updatedDate;
+const stamp = revised ?? summary.date;
+---
+
+<div class:list={["meta", onDark && "meta--onDark", className]}>
+  {showByline && <Byline bylines={summary.bylines} onDark={onDark} max={1} />}
+
+  <span
+    class:list={["meta__fact", revised && "meta__fact--updated", icons && "meta__fact--icon"]}
+    title={revised ? `First published ${formatDate(summary.date, "long")}` : undefined}
+  >
+    {icons && <Icon name="calendar" size={13} />}
+    {revised ? "Updated " : ""}<time datetime={stamp.toISOString()}>{formatDate(stamp)}</time>
+  </span>
+
+  {
+    showReadTime && (
+      <span class:list={["meta__fact", icons && "meta__fact--icon"]}>
+        {icons && <Icon name="clock" size={13} />}
+        {summary.minutes} min read
+      </span>
+    )
+  }
+</div>
+
+<style>
+  /* At reading width there is room to mark each fact with a glyph instead of
+     the separator dot, which tells a date from a read time at a glance. */
+  .meta :global(.meta__fact--icon) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .meta :global(.meta__fact--icon)::before {
+    content: none;
+  }
+</style>

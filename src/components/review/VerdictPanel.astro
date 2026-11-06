@@ -1,0 +1,158 @@
+---
+import AwardBadge from "@/components/ui/AwardBadge.astro";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import { scoreBandFor } from "@/config/scoring";
+import type { Review } from "@/lib/content";
+
+/**
+ * The bottom line, printed above the article rather than buried at the end of
+ * it. This is one of the two blocks in the theme that gets a surface of its own,
+ * because it genuinely is an object: a reader who sees only this should still
+ * come away with the score, the reason for it, and whether it is for them.
+ */
+interface Props {
+  review: Review;
+  score: number;
+  /** Where the testing methodology is documented. */
+  methodHref?: string;
+  class?: string;
+}
+
+const {
+  review,
+  score,
+  methodHref = "/post/how-we-test/",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const data = review.data;
+const band = scoreBandFor(score);
+---
+
+<section
+  class:list={["verdict panel", className]}
+  style={`--tone: var(--score-${band.tone})`}
+  aria-labelledby="verdict-title"
+  {...rest}
+>
+  <div class="verdict__head">
+    <ScoreBadge score={score} size="xl" />
+    <div class="verdict__headline">
+      {/* The award takes the label slot above the band name. "The verdict" is
+          kept for the document outline and for a screen reader, which needs the
+          section named — a reader looking at it can see what it is. */}
+      <h2 id="verdict-title" class="sr-only">The verdict</h2>
+      {data.award && <AwardBadge award={data.award} class="verdict__award" />}
+      <p class="txt-h2 score-band">{band.label}</p>
+      <p class="txt-s txt-dim">{band.meaning}</p>
+    </div>
+  </div>
+
+  <p class="txt-l verdict__body">{data.verdict}</p>
+
+  <dl class="verdict__calls">
+    <div>
+      <dt class="txt-sub-xs verdict__call--for">Buy it if</dt>
+      <dd class="txt-s">{data.bestFor}</dd>
+    </div>
+    <div>
+      <dt class="txt-sub-xs verdict__call--against">Skip it if</dt>
+      <dd class="txt-s">{data.skipIf}</dd>
+    </div>
+  </dl>
+
+  <p class="txt-label txt-dim verdict__foot">
+    Tested for {data.testedFor}. {data.sourcing} <a class="verdict__method" href={methodHref}>How we
+      test</a>
+  </p>
+</section>
+
+<style>
+  .verdict {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .verdict {
+      padding: 1.85rem 2rem;
+    }
+  }
+
+  .verdict__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.15rem;
+  }
+
+  .verdict__headline {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* A stamp over the band name, not a badge in its own right: the score square
+     is already carrying this block. `justify-self` keeps it to its own width —
+     a chip is blockified as a grid item and would otherwise stretch. */
+  .verdict__award {
+    height: 1.375rem;
+    justify-self: start;
+    padding-inline: 0.5rem;
+    font-size: 0.5625rem;
+    letter-spacing: 0.09em;
+  }
+
+  .verdict__body {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .verdict__calls {
+    display: grid;
+    gap: 1rem 2rem;
+    margin: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+  }
+
+  @media (min-width: 40rem) {
+    .verdict__calls {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .verdict__calls dt {
+    margin-bottom: 0.3rem;
+  }
+
+  .verdict__calls dd {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .verdict__call--for {
+    color: var(--pro);
+  }
+
+  .verdict__call--against {
+    color: var(--con);
+  }
+
+  .verdict__foot {
+    margin: 0;
+  }
+
+  .verdict__method {
+    color: var(--accent);
+    font-weight: var(--weight-strong);
+  }
+
+  .verdict__method:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

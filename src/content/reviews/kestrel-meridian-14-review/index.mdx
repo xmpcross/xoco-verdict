@@ -1,0 +1,197 @@
+---
+title: "Kestrel Meridian 14 review: the laptop that stops apologising in the second hour"
+excerpt: It loses the benchmark and wins the afternoon. Eight weeks with the machine that holds 94% of its clocks after half an hour under load.
+category: Computing
+date: 2026-08-09
+updatedDate: 2026-08-13
+author:
+  name: Marcus Oyelaran
+  role: Lead reviewer, computing
+coauthors:
+  - name: Dana Whitlock
+    role: Editor-in-chief
+tags: ["Laptops", "Battery life", "Repairability"]
+cover:
+  src: ./cover.jpg
+  alt: A laptop opening in the dark, its keyboard glowing pink and blue
+  creditName: Martin Sanchez
+  creditUrl: https://unsplash.com/photos/pink-and-black-heart-shape-light-G78c3DPmD_A
+product:
+  name: Meridian 14
+  brand: Kestrel Systems
+  image:
+    src: ./product.jpg
+    alt: A laptop open on a wooden desk beside a plant
+    creditName: Kari Shea
+    creditUrl: https://unsplash.com/photos/macbook-pro-on-top-of-brown-table-1SAnrIxw5OY
+  retailers:
+    - name: Kestrel Direct
+      url: https://example.com/kestrel/meridian-14
+      note: Price shown is the 32 GB / 1 TB build
+    - name: Sable Computing
+      url: https://example.com/sable/meridian-14
+  specs:
+    - group: Core
+      items:
+        - label: Processor
+          value: 12-core, 4.9 GHz boost
+        - label: Memory
+          value: 32 GB LPDDR5X, one slot free
+        - label: Storage
+          value: 1 TB NVMe, two M.2 slots
+    - group: Display
+      items:
+        - label: Panel
+          value: 14.0 in IPS, 2880 x 1800
+        - label: Refresh
+          value: 120 Hz variable
+        - label: Brightness, measured
+          value: 512 nits
+        - label: Colour, measured
+          value: 99% sRGB, average error 1.4
+    - group: Sustained performance
+      items:
+        - label: Peak all-core clock
+          value: 4.1 GHz
+        - label: After 30 min load
+          value: 3.85 GHz
+        - label: Fan noise under load
+          value: 41 dBA at 50 cm
+    - group: Physical and support
+      items:
+        - label: Weight
+          value: 1.52 kg
+        - label: Battery
+          value: 74 Wh, replaceable
+        - label: Update commitment
+          value: 5 years of BIOS and driver releases
+award: best-overall
+featured: true
+verdict: >-
+  The Meridian 14 is three millimetres thicker and 200 grams heavier than the
+  laptops it competes with, and it is the only one of them that is still running
+  at full speed forty minutes into a render. Add a genuinely replaceable battery,
+  a five-year update commitment in writing, and eleven and a half hours of real
+  mixed-use runtime, and the case against it comes down to how it looks closed.
+bestFor: You do work that runs for longer than a benchmark, and you expect to still be using this machine in 2031.
+skipIf: You want the thinnest thing in the room, or you need discrete graphics.
+testedFor: eight weeks as a primary machine, plus 40 hours of instrumented load testing
+scores:
+  - label: Sustained performance
+    value: 9.5
+    weight: 2
+    note: Holds 3.85 GHz all-core after 30 minutes, against a 4.1 GHz peak.
+  - label: Battery
+    value: 9.2
+    weight: 2
+    note: 11 h 40 m of mixed use at 150 nits, verified across four runs.
+  - label: Display
+    value: 8.4
+    weight: 1.5
+    note: 512 nits and accurate, but IPS contrast against OLED rivals.
+  - label: Keyboard and trackpad
+    value: 8.8
+    weight: 1
+    note: 1.5 mm of travel and a trackpad that has never registered a stray palm.
+  - label: Repairability and support
+    value: 9.8
+    weight: 1.5
+    note: Everything replaceable, parts sold individually, five years of updates.
+  - label: Portability
+    value: 6.8
+    weight: 1
+    note: 1.52 kg and 19 mm. You will notice it in a bag.
+pros:
+  - Sustains 94% of peak all-core clocks after 30 minutes of load
+  - Battery, SSD, memory, and fans are all user-replaceable
+  - Five years of BIOS and driver updates, committed in writing
+  - Genuinely quiet under load for a machine this fast
+cons:
+  - Heavier and thicker than everything it competes with
+  - IPS panel looks flat next to an OLED once you have seen one
+  - No discrete graphics option at any configuration
+  - Almost never discounted
+---
+
+import Callout from "@/components/mdx/Callout.astro";
+import KeyNumbers from "@/components/mdx/KeyNumbers.astro";
+import TestBench from "@/components/mdx/TestBench.astro";
+
+Laptop reviews are mostly written in the first ten minutes of a workload, which is
+the only period in which thin machines look good. Run the same test for forty
+minutes and the field separates into laptops that were engineered for a chart and
+laptops that were engineered for a job.
+
+<KeyNumbers
+  items={[
+    { value: "94", unit: "%", label: "Of peak clocks held at 30 min", note: "Class average: 71%" },
+    { value: "11:40", label: "Mixed-use battery", note: "150 nits, mixed workload" },
+    { value: "5", unit: "yr", label: "Committed update window" },
+  ]}
+/>
+
+## Sustained load is the whole review
+
+The Meridian's processor is not remarkable. Its cooling is. Kestrel has spent the
+three millimetres of extra thickness on a vapour chamber and two fans that spin up
+early and slowly rather than late and hard, and the result is a clock curve that is
+almost flat.
+
+<TestBench
+  caption="30-minute all-core load, 22 C ambient, on a hard surface. Reference is the mean of six 14-inch machines between $1,200 and $1,800 tested identically."
+  rows={[
+    { label: "Peak all-core clock", result: "4.10 GHz", reference: "4.35 GHz", better: false },
+    { label: "Clock at 30 minutes", result: "3.85 GHz", reference: "3.09 GHz", better: true },
+    { label: "Clock retained", result: "94%", reference: "71%", better: true },
+    { label: "Fan noise at 30 minutes", result: "41 dBA", reference: "47 dBA", better: true },
+    { label: "Hottest surface point", result: "44 C", reference: "51 C", better: true },
+  ]}
+/>
+
+The Vector 13 wins the first sixty seconds of that test by a comfortable margin and
+loses the remaining twenty-nine minutes by a much larger one. Which of those numbers
+matters is entirely a question of what you do, and we would suggest that anyone who
+exports video, compiles anything, or keeps forty browser tabs open is in the second
+group whether they think so or not.
+
+## Battery
+
+Eleven hours and forty minutes at 150 nits with a mixed workload — browser, editor,
+video call, some light compilation — across four runs that landed within eleven
+minutes of each other. That is the most consistent battery result we have recorded,
+and consistency matters more than the peak figure: a laptop that does 14 hours on a
+good day and 6 on a bad one is a laptop you carry a charger for.
+
+<Callout tone="method" title="What our mixed-use test contains">
+  Forty per cent browsing on a fixed set of sites, twenty per cent text editing, twenty per cent
+  video call, ten per cent compilation, ten per cent idle with the lid open. Screen fixed at 150
+  nits measured, keyboard backlight off, Wi-Fi on, Bluetooth off. Run to shutdown, four times.
+</Callout>
+
+## The panel, and the one real compromise
+
+512 nits, colour accurate enough out of the box for photo work, 120 Hz, and matte.
+It is a very good IPS panel and it is an IPS panel. Put it next to the Vector 13's
+OLED and the blacks look grey, because they are.
+
+For most work this is the correct trade — IPS does not burn in, holds full-field
+brightness better, and costs less battery. It is still the thing you will notice
+first if you are coming from an OLED machine, and no amount of colour accuracy
+argues you out of it.
+
+## Repairability
+
+Sixteen screws, all Torx T5, all the same length. Battery out in under two minutes.
+Memory, storage, wireless card, fans, and speakers all socketed. The parts store
+lists every one of them with a price, and the service manual is a PDF rather than a
+support ticket.
+
+This is not a small feature. A machine you can put a new battery into in 2029 is a
+different purchase from one you cannot, and the five-year update commitment means
+the software will still be there when you do.
+
+## The verdict
+
+Buy this if the work matters more than the bag. The Meridian 14 is not exciting,
+does not photograph well, and will still be the fastest machine in the room at
+four in the afternoon.

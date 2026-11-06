@@ -1,0 +1,99 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+
+/**
+ * Raw measurements against a reference, for the part of a review where the
+ * bench does the arguing. Each row prints what we measured, what the class
+ * average is, and whether the product beat it — the comparison a reader cannot
+ * make from a single number.
+ *
+ *   <TestBench
+ *     caption="Sealed room, three runs averaged."
+ *     rows={[
+ *       { label: "Isolation, 100 Hz", result: "31.4 dB", reference: "24.0 dB", better: true },
+ *     ]}
+ *   />
+ */
+interface Props {
+  rows: {
+    label: string;
+    result: string;
+    reference?: string;
+    /** Leave unset for rows where "better" is not a meaningful judgement. */
+    better?: boolean;
+  }[];
+  title?: string;
+  caption?: string;
+  /** Column header for the reference figure. */
+  referenceLabel?: string;
+  class?: string;
+}
+
+const {
+  rows,
+  title = "On the bench",
+  caption,
+  referenceLabel = "Class average",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+const hasReference = rows.some((row) => row.reference !== undefined);
+---
+
+<figure class:list={["bench", className]} {...rest}>
+  <figcaption class="txt-sub-xs bench__head">{title}</figcaption>
+
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Test</th>
+          <th scope="col">Result</th>
+          {hasReference && <th scope="col">{referenceLabel}</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              <td class:list={["bench__result", row.better === true && "is-winner"]}>
+                {row.better === true && <Icon name="check" size={13} class="bench__tick" />}
+                {row.result}
+              </td>
+              {hasReference && <td class="txt-dim">{row.reference ?? "—"}</td>}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  {caption && <p class="txt-cap txt-dim bench__caption">{caption}</p>}
+</figure>
+
+<style>
+  .bench {
+    margin: 2rem 0;
+  }
+
+  .bench__head {
+    margin-bottom: 0.5rem;
+  }
+
+  .bench__result {
+    font-weight: 500;
+  }
+
+  .bench__tick {
+    display: inline-grid;
+    margin-right: 0.35rem;
+    color: var(--pro);
+    vertical-align: -0.1em;
+  }
+
+  .bench__caption {
+    margin-top: 0.85rem;
+  }
+</style>

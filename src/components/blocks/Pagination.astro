@@ -1,0 +1,69 @@
+---
+import Icon from "@/components/ui/Icon.astro";
+
+interface Props {
+  prevUrl?: string;
+  nextUrl?: string;
+  currentPage: number;
+  lastPage: number;
+  label: string;
+}
+
+const { prevUrl, nextUrl, currentPage, lastPage, label } = Astro.props;
+---
+
+{
+  lastPage > 1 && (
+    <nav class="pagination" aria-label={label}>
+      {prevUrl ? (
+        <a class="btn btn--ghost" href={prevUrl} rel="prev">
+          <Icon name="arrow-left" size={14} />
+          Previous
+        </a>
+      ) : (
+        <span class="btn btn--ghost" aria-disabled="true">
+          <Icon name="arrow-left" size={14} />
+          Previous
+        </span>
+      )}
+
+      <span class="txt-label txt-dim">Page {currentPage} of {lastPage}</span>
+
+      {nextUrl ? (
+        <a class="btn btn--ghost" href={nextUrl} rel="next">
+          Next
+          <Icon name="arrow-right" size={14} />
+        </a>
+      ) : (
+        <span class="btn btn--ghost" aria-disabled="true">
+          Next
+          <Icon name="arrow-right" size={14} />
+        </span>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .pagination [aria-disabled="true"] {
+    cursor: default;
+    opacity: 0.4;
+  }
+
+  .pagination [aria-disabled="true"]:hover {
+    border-color: var(--border-strong);
+    background: transparent;
+    color: var(--foreground);
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  /** A short factual line: counts, dates. Kept to one line or omitted. */
+  meta?: string;
+  /** Set false when the block below opens with its own rule or layout edge. */
+  divider?: boolean;
+  class?: string;
+}
+
+const { title, description, meta, divider = true, class: className = "", ...rest } = Astro.props;
+---
+
+<header class:list={["page-header", !divider && "page-header--flush", className]} {...rest}>
+  <h1 class="txt-h1">{title}</h1>
+  {description && <p class="txt-l txt-dim page-header__description">{description}</p>}
+  {meta && <p class="txt-eyebrow txt-dim">{meta}</p>}
+  <slot />
+</header>
+
+<style>
+  .page-header {
+    display: grid;
+    gap: 0.65rem;
+    justify-items: start;
+    padding-block: 3.25rem 2.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header--flush {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .page-header__description {
+    max-width: 46rem;
+  }
+</style>

@@ -1,0 +1,480 @@
+---
+import { Image } from "astro:assets";
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import FeaturedHero from "@/components/blocks/FeaturedHero.astro";
+import CategoryCard from "@/components/cards/CategoryCard.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import SectionHeader from "@/components/blocks/SectionHeader.astro";
+import ScoreBadge from "@/components/ui/ScoreBadge.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { siteConfig } from "@/config/site";
+import { scoreBandFor } from "@/config/scoring";
+import { cardSizes } from "@/lib/imageSizes";
+import { loadLibrary, rankedReviews } from "@/lib/articles";
+import {
+  articleHref,
+  categories,
+  categoryHref,
+  exclude,
+  inCategory,
+  reviewScore,
+  summarize,
+} from "@/lib/content";
+
+const library = await loadLibrary();
+
+/*
+ * The front page spends each article once: every block takes from what the
+ * blocks above it left, so adding or removing content never leaves a section
+ * empty and never prints the same headline twice.
+ */
+const pinned = siteConfig.featuredReviews
+  .map((slug) => library.reviews.find((review) => review.id === slug))
+  .filter((review) => review !== undefined);
+const featuredReviews = [...pinned, ...exclude(library.reviews, pinned)];
+
+/** The cover hero. */
+const hero = featuredReviews[0];
+
+/** The coloured band under it: the next review, with four more beside it. */
+const afterHero = exclude(library.reviews, hero ? [hero] : []);
+const lead = afterHero[0];
+const leadScore = lead ? reviewScore(lead) : undefined;
+const leadBand = leadScore !== undefined ? scoreBandFor(leadScore) : undefined;
+const leadSide = exclude(afterHero, lead ? [lead] : []).slice(0, 4).map(summarize);
+
+const usedReviews = [
+  ...(hero ? [hero] : []),
+  ...(lead ? [lead] : []),
+  ...exclude(afterHero, lead ? [lead] : []).slice(0, 4),
+];
+
+const moreReviews = exclude(library.reviews, usedReviews).slice(0, 4).map(summarize);
+const comparisonCards = library.comparisons.slice(0, 2).map(summarize);
+const guideCards = library.posts.slice(0, 6).map(summarize);
+const moreGuides = library.posts.slice(6, 14).map(summarize);
+
+/** The score ranking, as a compact list rather than a table. */
+const ranked = rankedReviews(library.reviews).slice(0, 10);
+
+const categoryStats = categories
+  .map((category) => ({
+    category,
+    articleCount: inCategory(library.articles, category).length,
+  }))
+  .filter((stat) => stat.articleCount > 0);
+---
+
+<BaseLayout>
+  {/* The front page is the one page whose bar starts transparent: the hero runs
+      the full height of the fold and the picture reads better without a rule
+      across the top of it. Without a hero there is nothing dark to be white
+      against, so the bar stays solid. */}
+  <SiteHeader articles={library.articles} overlay={hero !== undefined} />
+
+  <main id="content">
+    <h1 class="sr-only">{siteConfig.name} — {siteConfig.tagline}</h1>
+
+    {hero && <FeaturedHero review={hero} class="pull-under-header" />}
+
+    {/* ------------------------------------------------------------ lead --- */}
+    {
+      lead && leadScore !== undefined && leadBand && (
+        <section class="cat-band wash-band front-hero" aria-labelledby="lead-title">
+          <div class="container front-hero__inner">
+            <article class="lead zoom-host">
+              <div class="lead__media">
+                <div class="media media--tall">
+                  {/* 4:5 at build time, like the cards: a landscape cover left
+                      at its own ratio has to be scaled ~1.9x to fill a portrait
+                      frame, and paints soft. */}
+                  <Image
+                    src={lead.data.cover.src}
+                    alt=""
+                    width={1000}
+                    height={1250}
+                    fit="cover"
+                    widths={[480, 720, 960, 1280]}
+                    sizes={cardSizes.lead}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+
+              <a class="overlay-link" href={articleHref(lead)} aria-label={lead.data.title} />
+
+              <div class="lead__body">
+                <p class="lead__kicker">
+                  <span class="txt-eyebrow lead__flag">Latest review</span>
+                  <a class="txt-cat lead__category" href={categoryHref(lead.data.category)}>
+                    {lead.data.category}
+                  </a>
+                </p>
+
+                <h2 id="lead-title" class="lead__title">{lead.data.title}</h2>
+
+                <p class="lead__excerpt">{lead.data.excerpt}</p>
+
+                <div class="lead__foot" style={`--tone: var(--score-${leadBand.tone})`}>
+                  <ScoreBadge score={leadScore} size="md" />
+                  <div class="lead__band">
+                    <p class="txt-h5 score-band">{leadBand.label}</p>
+                    <p class="txt-s lead__band-note">{leadBand.meaning}</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <aside class="lead__side" aria-label="More reviews">
+              <ul class="lead__list">
+                {leadSide.map((summary) => (
+                  <li>
+                    <ArticleCard summary={summary} variant="text" showByline={false} />
+                  </li>
+                ))}
+              </ul>
+              <a class="txt-eyebrow lead__more" href="/reviews/">All reviews →</a>
+            </aside>
+          </div>
+        </section>
+      )
+    }
+
+    {/* ---------------------------------------------------------- guides --- */}
+    {
+      guideCards.length > 0 && (
+        <section class="container section section-top" aria-labelledby="home-guides">
+          <SectionHeader title="Latest from the blog" href="/blog/" id="home-guides" />
+          <div class="grid-cards">
+            {guideCards.map((summary) => (
+              <ArticleCard summary={summary} titleSize="h3" showExcerpt />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {/* ----------------------------------------------------- more reviews --- */}
+    {
+      moreReviews.length > 0 && (
+        <section class="container section" aria-labelledby="home-reviews">
+          <SectionHeader title="Scored this month" href="/reviews/" id="home-reviews" />
+          <div class="grid-cards grid-cards--4">
+            {moreReviews.map((summary) => (
+              <ArticleCard summary={summary} sizes={cardSizes.grid4} showByline={false} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {/* ------------------------------------------- comparisons + ranking --- */}
+    <section class="container section" aria-labelledby="home-versus">
+      <div class="versus">
+        <SectionHeader
+          title="Head to head"
+          href="/comparisons/"
+          id="home-versus"
+          class="versus__head"
+        />
+
+        <div class="min-w-0 grid-cards grid-cards--2 versus__cards">
+          {
+            comparisonCards.map((summary) => (
+              <ArticleCard summary={summary} titleSize="h3" sizes={cardSizes.grid2} showExcerpt />
+            ))
+          }
+        </div>
+
+        <aside class="versus__rail">
+          {
+            ranked.length > 0 && (
+              <ol class="ranking__list" aria-label="Highest scored">
+                {ranked.map((row, index) => (
+                  <li class="ranking__row">
+                    <span class="ranking__index tabular">{index + 1}</span>
+                    <a class="ranking__link" href={articleHref(row.review)}>
+                      <span class="txt-eyebrow ranking__brand">
+                        {row.review.data.product.brand}
+                      </span>
+                      <span class="txt-h6 ranking__product">{row.review.data.product.name}</span>
+                    </a>
+                    <ScoreBadge score={row.score} size="xs" quiet />
+                  </li>
+                ))}
+              </ol>
+            )
+          }
+        </aside>
+      </div>
+    </section>
+
+    {/* ------------------------------------------------------ categories --- */}
+    <section class="container section" aria-labelledby="home-categories">
+      <SectionHeader title="Browse by category" id="home-categories" />
+      <div class="grid-cards grid-cards--3up">
+        {
+          categoryStats.map((stat) => (
+            <CategoryCard category={stat.category} articleCount={stat.articleCount} />
+          ))
+        }
+      </div>
+    </section>
+
+    {/* ------------------------------------------------------ more guides --- */}
+    {
+      moreGuides.length > 0 && (
+        <section class="container section" aria-labelledby="home-advice">
+          <SectionHeader title="More advice" href="/blog/" id="home-advice" />
+          <div class="grid-cards grid-cards--4">
+            {moreGuides.map((summary) => (
+              <ArticleCard summary={summary} variant="compact" headingLevel="h3" />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <NewsletterBand />
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  /* Lead ---------------------------------------------------------------- */
+
+  /*
+   * The band under the hero is a wash of the page's own white rather than the
+   * lead's category colour: it follows a full-height photograph, and a pastel
+   * band directly under one reads as a second, competing image. The category
+   * hue still opens every article and archive page.
+   */
+  .front-hero__inner {
+    display: grid;
+    gap: 2.75rem;
+    align-content: start;
+    padding-block: 2.75rem 3.25rem;
+  }
+
+  @media (min-width: 48rem) {
+    .front-hero__inner {
+      padding-block: 4rem 4.5rem;
+    }
+  }
+
+  @media (min-width: 68rem) {
+    .front-hero__inner {
+      grid-template-columns: minmax(0, 1fr) 19rem;
+      gap: 4rem;
+    }
+  }
+
+  .lead {
+    position: relative;
+    display: grid;
+    gap: 1.75rem;
+    align-content: start;
+  }
+
+  @media (min-width: 48rem) {
+    .lead {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+  }
+
+  .lead__body {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+
+  .lead__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0;
+  }
+
+  /* Above the whole-card link, or it stops being clickable. */
+  .lead__category {
+    position: relative;
+    z-index: 3;
+  }
+
+  .lead__flag {
+    background: var(--foreground);
+    padding: 0.4rem 0.65rem;
+    color: var(--background);
+  }
+
+  .lead__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 3.6vw, 3rem);
+    font-weight: var(--weight-title);
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    text-wrap: balance;
+    transition: color 0.2s ease;
+  }
+
+  .lead:hover .lead__title {
+    color: var(--accent);
+  }
+
+  /* Two or three lines under the headline — enough to square the lead off
+     against the rail of reviews beside it. */
+  .lead__excerpt {
+    margin: 0;
+    max-width: 48ch;
+    color: color-mix(in srgb, var(--foreground) 76%, transparent);
+    font-size: var(--fs-l);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .lead__foot {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    width: 100%;
+    max-width: 32rem;
+    margin-top: 0.35rem;
+    border-top: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+    padding-top: 1.35rem;
+  }
+
+  .lead__band {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .lead__band-note {
+    color: color-mix(in srgb, var(--foreground) 66%, transparent);
+  }
+
+  /* The side rail: four more reviews, no pictures, straight down the edge. */
+  .lead__side {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+  }
+
+  .lead__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lead__list li {
+    border-top: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+    padding-block: 1rem;
+  }
+
+  .lead__list li:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .lead__more:hover {
+    color: var(--accent);
+  }
+  /* Ranking rail -------------------------------------------------------- */
+  /* Head to head ------------------------------------------------------- */
+
+  /*
+   * The section header sits in the left column's own row, so the ranking rail
+   * starts level with the tops of the comparison covers rather than with the
+   * headline above them.
+   */
+  .versus {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .versus__head {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .versus {
+      grid-template-columns: minmax(0, 1fr) var(--sidebar);
+      column-gap: 3.5rem;
+      row-gap: 2.5rem;
+    }
+
+    .versus__head,
+    .versus__cards {
+      grid-column: 1;
+    }
+
+    .versus__rail {
+      grid-column: 2;
+      grid-row: 2;
+    }
+  }
+
+  /* Ranking rail -------------------------------------------------------- */
+
+  .ranking__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ranking__row {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    border-top: 1px solid var(--border);
+    padding-block: 0.9rem;
+  }
+
+  .ranking__row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /* The rank set in the display face, at the size of the name beside it: the
+     list is a chart, and a chart's numbers are part of its type. */
+  .ranking__index {
+    color: var(--muted-foreground);
+    font-family: var(--font-display);
+    font-size: var(--fs-h5);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .ranking__link {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .ranking__brand {
+    color: var(--muted-foreground);
+  }
+
+  .ranking__link:hover .ranking__product {
+    color: var(--accent);
+  }
+
+  /* Three across for the category tiles, which are short and wide. */
+  @media (min-width: 60rem) {
+    .grid-cards--3up {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

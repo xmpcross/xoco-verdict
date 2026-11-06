@@ -1,0 +1,77 @@
+---
+import ArticleCard from "@/components/cards/ArticleCard.astro";
+import NewsletterBand from "@/components/blocks/NewsletterBand.astro";
+import PageHeader from "@/components/blocks/PageHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import { loadLibrary } from "@/lib/articles";
+import { allTags, summarize, tagHref, tagSlug, type Article, type ArticleSummary } from "@/lib/content";
+
+export async function getStaticPaths() {
+  const library = await loadLibrary();
+  const tags = allTags(library.articles);
+
+  return tags.map((tag) => ({
+    params: { tag: tagSlug(tag) },
+    props: {
+      tag,
+      articles: library.articles,
+      matches: library.articles.filter((article) => article.data.tags.includes(tag)).map(summarize),
+      siblings: tags.filter((other) => other !== tag),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  articles: Article[];
+  matches: ArticleSummary[];
+  siblings: string[];
+}
+
+const { tag, articles, matches, siblings } = Astro.props;
+---
+
+<BaseLayout title={tag} description={`Everything tagged ${tag}.`}>
+  <SiteHeader articles={articles} />
+
+  <main id="content">
+    <div class="container">
+      <PageHeader
+        title={tag}
+        description="Everything we have published under this tag, newest first."
+        meta={`${matches.length} ${matches.length === 1 ? "article" : "articles"}`}
+      />
+    </div>
+
+    <section class="container section section-top" aria-label={`Articles tagged ${tag}`}>
+      <div class="grid-cards">
+        {matches.map((summary, index) => <ArticleCard summary={summary} showExcerpt eager={index < 3} />)}
+      </div>
+    </section>
+
+    {
+      siblings.length > 0 && (
+        <section class="container section" aria-labelledby="tag-others">
+          <h2 id="tag-others" class="txt-label txt-dim tag-others__title">Other tags</h2>
+          <div class="chip-row">
+            {siblings.map((other) => (
+              <a class="chip" href={tagHref(other)}>{other}</a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <NewsletterBand id="tag-newsletter" />
+  </main>
+
+  <SiteFooter />
+
+  <style>
+    .tag-others__title {
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,143 @@
+---
+import { formatScore, scoreBandFor, SCORE_MAX, type Subscore } from "@/config/scoring";
+
+/**
+ * How the headline number was arrived at. Publishing the weights is the point:
+ * a reader who disagrees with us about how much battery life matters can do
+ * their own arithmetic instead of arguing with the badge.
+ */
+interface Props {
+  scores: Subscore[];
+  total: number;
+  id?: string;
+  class?: string;
+}
+
+const { scores, total, id = "breakdown", class: className = "", ...rest } = Astro.props;
+const totalWeight = scores.reduce((sum, item) => sum + (item.weight ?? 1), 0);
+/** Only worth printing when the editor actually leaned on one criterion. */
+const weighted = scores.some((item) => (item.weight ?? 1) !== 1);
+---
+
+{
+  scores.length > 0 && (
+    <section class:list={["breakdown", className]} aria-labelledby={`${id}-title`} {...rest}>
+      <div class="breakdown__head">
+        <h2 id={`${id}-title`} class="txt-h3">How it scored</h2>
+        <p class="txt-label txt-dim">
+          {weighted ? "Weighted average" : "Straight average"} of {scores.length} criteria
+        </p>
+      </div>
+
+      <ul class="breakdown__list">
+        {scores.map((item) => {
+          const band = scoreBandFor(item.value);
+          const share = Math.round(((item.weight ?? 1) / totalWeight) * 100);
+          return (
+            <li
+              class="breakdown__row"
+              style={`--tone: var(--score-${band.tone}); --fraction: ${item.value / SCORE_MAX}`}
+            >
+              <span class="breakdown__label txt-sub-xs">{item.label}</span>
+              <span class="breakdown__value tabular">{formatScore(item.value)}</span>
+              <span class="meter breakdown__meter">
+                <span class="meter__fill" />
+              </span>
+              {weighted && <span class="txt-label txt-dim breakdown__share">{share}%</span>}
+              {item.note && <p class="txt-s txt-dim breakdown__note">{item.note}</p>}
+            </li>
+          );
+        })}
+      </ul>
+
+      <p class="breakdown__total">
+        <span class="txt-sub">Overall</span>
+        <span class="breakdown__total-value tabular">
+          {formatScore(total)}
+          <span class="breakdown__total-max">/{SCORE_MAX}</span>
+        </span>
+      </p>
+    </section>
+  )
+}
+
+<style>
+  .breakdown__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .breakdown__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /*
+   * Four columns: label, score, bar, and the weight share. The bar sits on the
+   * same line as its number rather than under it, so the block reads as a chart
+   * instead of as a stack of rows.
+   */
+  .breakdown__row {
+    display: grid;
+    grid-template-columns: minmax(6rem, 9rem) 2.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    border-top: 1px solid var(--border);
+    padding-block: 0.8rem;
+  }
+
+  .breakdown__value {
+    color: var(--tone);
+    font-family: var(--font-display);
+    font-size: var(--fs-h4);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-align: right;
+  }
+
+  .breakdown__note {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  .breakdown__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    border-top: 2px solid var(--foreground);
+    padding-top: 0.85rem;
+  }
+
+  .breakdown__total-value {
+    font-family: var(--font-display);
+    font-size: var(--fs-h2);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .breakdown__total-max {
+    color: var(--muted-foreground);
+    font-size: var(--fs-m);
+    font-weight: 500;
+  }
+
+  /* On a phone the bar drops to its own line rather than being squeezed into a
+     few millimetres between the score and the weight. */
+  @media (max-width: 33.99rem) {
+    .breakdown__row {
+      grid-template-columns: minmax(0, 1fr) 2.5rem auto;
+    }
+
+    .breakdown__meter {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
